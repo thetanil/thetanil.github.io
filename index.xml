@@ -1,14 +1,96 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Home on Theta Nil's Site</title><link>https://thetanil.github.io/</link><description>Recent content in Home on Theta Nil's Site</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Sun, 05 Oct 2025 11:00:00 +0000</lastBuildDate><atom:link href="https://thetanil.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Accursed</title><link>https://thetanil.github.io/posts/accursed/</link><pubDate>Sun, 05 Oct 2025 11:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/accursed/</guid><description>&lt;p&gt;some type of market gambling
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Home on Theta Nil's Site</title><link>https://thetanil.github.io/</link><description>Recent content in Home on Theta Nil's Site</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Sun, 05 Oct 2025 11:00:00 +0000</lastBuildDate><atom:link href="https://thetanil.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Accursed</title><link>https://thetanil.github.io/posts/accursed/</link><pubDate>Sun, 05 Oct 2025 11:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/accursed/</guid><description>&lt;h2 id="design"&gt;design&lt;/h2&gt;
+&lt;h3 id="midgaard-static-site-recreation"&gt;Midgaard Static Site Recreation&lt;/h3&gt;
+&lt;p&gt;Recreating the classic MUD city of Midgaard as a Hugo static site, where each room is a markdown file with YAML frontmatter containing spatial and descriptive data.&lt;/p&gt;
+&lt;h4 id="room-structure"&gt;Room Structure&lt;/h4&gt;
+&lt;p&gt;Each room will be a markdown file with the following YAML frontmatter:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-yaml" data-lang="yaml"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;---
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;title&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;Temple Square&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;room_id&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;temple_square&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;coordinates&lt;/span&gt;: [&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;] &lt;span style="color:#75715e"&gt;# x, y, z&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;short_description&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;the Temple Square&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;exits&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;north&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;temple_entrance&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;south&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;market_square&amp;#34;&lt;/span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;east&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;eastern_avenue&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;west&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;western_road&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;up&lt;/span&gt;: &lt;span style="color:#66d9ef"&gt;null&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;down&lt;/span&gt;: &lt;span style="color:#66d9ef"&gt;null&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;npcs&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#f92672"&gt;name&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;a temple guard&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;description&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;A stern-looking guard watches over the square&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;items&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#e6db74"&gt;&amp;#34;a marble fountain&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#e6db74"&gt;&amp;#34;stone benches&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;ambiance&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#e6db74"&gt;&amp;#34;The sound of flowing water echoes from the fountain&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#e6db74"&gt;&amp;#34;Pilgrims move quietly through the square&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;lighting&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;bright&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;weather_affected&lt;/span&gt;: &lt;span style="color:#66d9ef"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;---
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;You stand in the heart of Midgaard&amp;#39;s Temple Square. A magnificent marble fountain &lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;dominates the center, its crystalline waters catching the light. Stone benches &lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;line the square&amp;#39;s perimeter, offering rest to weary travelers. To the north, &lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;the grand temple rises majestically, while bustling market sounds drift from the south.&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h4 id="directory-structure"&gt;Directory Structure&lt;/h4&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;content/
+ midgaard/
+ _index.md # Main city overview
+ temple/
+ square.md # Temple Square (0,0,0)
+ entrance.md # Temple Entrance (0,1,0)
+ altar.md # Main Altar (0,2,0)
+ market/
+ square.md # Market Square (0,-1,0)
+ fountain.md # Market Fountain (0,-2,0)
+ stalls/
+ weapon_shop.md # Weapon Shop (-1,-1,0)
+ armor_shop.md # Armor Shop (1,-1,0)
+ residential/
+ main_street.md # Main Street
+ inn.md # The Midgaard Inn
+ tavern.md # Local Tavern
+ outskirts/
+ gates/
+ north.md # North Gate
+ south.md # South Gate
+ east.md # East Gate 
+ west.md # West Gate
+&lt;/code&gt;&lt;/pre&gt;&lt;h4 id="navigation-system"&gt;Navigation System&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Custom Hugo shortcode &lt;code&gt;{{&amp;lt; compass &amp;gt;}}&lt;/code&gt; generates N/S/E/W navigation buttons&lt;/li&gt;
+&lt;li&gt;JavaScript enhances buttons with hover effects and keyboard navigation&lt;/li&gt;
+&lt;li&gt;URL structure: &lt;code&gt;/midgaard/temple/square/&lt;/code&gt; maps to coordinates and connections&lt;/li&gt;
+&lt;li&gt;Breadcrumb system shows current location in city hierarchy&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id="content-generation-strategy"&gt;Content Generation Strategy&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Core Locations&lt;/strong&gt;: Start with ~20 essential Midgaard locations (temple, market, inn, gates)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Procedural Descriptions&lt;/strong&gt;: Use templates with randomized ambient details&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Interconnected Layout&lt;/strong&gt;: Maintain classic MUD spatial relationships&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Progressive Enhancement&lt;/strong&gt;: Add NPCs, items, and lore incrementally&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Community Content&lt;/strong&gt;: Allow contributions via Git PRs for new rooms/descriptions&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id="technical-implementation"&gt;Technical Implementation&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Layout Template&lt;/strong&gt;: Custom &lt;code&gt;room.html&lt;/code&gt; layout renders YAML data as interactive room&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Asset Pipeline&lt;/strong&gt;: CSS/JS for compass navigation and atmospheric effects&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Data Validation&lt;/strong&gt;: Hugo&amp;rsquo;s data validation ensures room connections are bidirectional&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Mobile First&lt;/strong&gt;: Touch-friendly navigation optimized for &amp;ldquo;midgaard on mobile&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Progressive Web App&lt;/strong&gt;: Offline capability for exploring the city anywhere&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id="atmospheric-features"&gt;Atmospheric Features&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Dynamic Descriptions&lt;/strong&gt;: Time-based content changes (day/night descriptions)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Weather System&lt;/strong&gt;: Frontmatter-driven weather affects room descriptions&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Sound Design&lt;/strong&gt;: Ambient audio cues for different districts&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Character Persistence&lt;/strong&gt;: LocalStorage tracks &amp;ldquo;character&amp;rdquo; location between visits&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="thoughts---do-not-modify-always-save-this-text-at-the-bottom-of-the-article-unchanged"&gt;thoughts - do not modify, always save this text at the bottom of the article unchanged&lt;/h2&gt;
+&lt;p&gt;some type of market gambling
 some type of political influence from outside
 some type of iterative simulation which takes input from the live world (mastodon)
-some type of tithing to the democratically distributed financial backing&lt;/p&gt;
-&lt;p&gt;signed posts to masto, or their security is good enough&amp;hellip; for now&amp;hellip;&lt;/p&gt;
-&lt;p&gt;midgaard on mobile&lt;/p&gt;
-&lt;p&gt;a character
-in the town
-walks around
-gets a beer
-sits down&lt;/p&gt;</description></item><item><title>Domain Portfolio</title><link>https://thetanil.github.io/posts/domains/</link><pubDate>Sun, 05 Oct 2025 11:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/domains/</guid><description>&lt;h1 id="domain-portfolio"&gt;Domain Portfolio&lt;/h1&gt;
+some type of tithing to the democratically distributed financial backing&lt;/p&gt;</description></item><item><title>Domain Portfolio</title><link>https://thetanil.github.io/posts/domains/</link><pubDate>Sun, 05 Oct 2025 11:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/domains/</guid><description>&lt;h1 id="domain-portfolio"&gt;Domain Portfolio&lt;/h1&gt;
 &lt;p&gt;Quick access to all enabled domains in the portfolio. Click any link to test the redirect behavior.&lt;/p&gt;
 &lt;h2 id="enabled-domains"&gt;Enabled Domains&lt;/h2&gt;
 &lt;p&gt;These domains are currently managed and configured with redirects to thetanil.com:&lt;/p&gt;
@@ -59,4 +141,6 @@ voluptate ea occaecat officia. Cillum sint esse velit ea officia minim fugiat.
 Elit ea esse id aliquip pariatur cupidatat id duis minim incididunt ea ea. Anim
 ut duis sunt nisi. Culpa cillum sit voluptate voluptate eiusmod dolor. Enim nisi
 Lorem ipsum irure est excepteur voluptate eu in enim nisi. Nostrud ipsum Lorem
-anim sint labore consequat do.&lt;/p&gt;</description></item></channel></rss>
+anim sint labore consequat do.&lt;/p&gt;</description></item><item><title>Market Square</title><link>https://thetanil.github.io/midgaard/market/square/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/midgaard/market/square/</guid><description>&lt;p&gt;You find yourself in Midgaard&amp;rsquo;s bustling Market Square, the commercial heart of the great city. The square teems with activity as merchants, shoppers, and travelers create a vibrant tapestry of city life. Colorful banners flutter overhead, marking different vendor stalls and announcing today&amp;rsquo;s special wares.&lt;/p&gt;
+&lt;p&gt;Cobblestone streets radiate outward from the square, worn smooth by countless feet and cart wheels. Market stalls line the square&amp;rsquo;s edges, their wooden frames supporting canvas awnings that provide shade for both merchants and customers. The air is thick with the mingled aromas of fresh bread, exotic spices, leather goods, and the occasional less pleasant scent of livestock.&lt;/p&gt;</description></item><item><title>Temple Square</title><link>https://thetanil.github.io/midgaard/temple/square/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/midgaard/temple/square/</guid><description>&lt;p&gt;You stand in the heart of Midgaard&amp;rsquo;s Temple Square, the spiritual center of the great city. A magnificent marble fountain dominates the center of the square, its crystalline waters catching the light as they cascade down carved stone tiers. The fountain depicts ancient heroes and divine figures, their faces worn smooth by countless years of weather and the touch of reverent hands.&lt;/p&gt;
+&lt;p&gt;Stone benches line the square&amp;rsquo;s perimeter, offering rest to weary travelers and contemplative pilgrims. Ornate pillars support covered walkways that provide shelter from sun and rain. To the north, the grand Temple of Midgaard rises majestically, its towering spires reaching toward the heavens. The sound of chanting occasionally drifts down from within.&lt;/p&gt;</description></item></channel></rss>
