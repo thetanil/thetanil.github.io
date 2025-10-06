@@ -1,0 +1,119 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width"><title>Distributed Monolith Pipeline | Theta Nil's Site</title><link rel=stylesheet href=/css/main.min.c7a5c1c6627bdd92510df0d2272d0f86694f49366048d0ee3065e20d315759b3.css integrity="sha256-x6XBxmJ73ZJRDfDSJy0PhmlPSTZgSNDuMGXiDTFXWbM=" crossorigin=anonymous><script src=/js/main.23cd0c7d837263b9eaeb96ee2d9ccfa2969daa3fa00fa1c1fe8701a9b87251a1.js integrity="sha256-I80MfYNyY7nq65buLZzPopadqj+gD6HB/ocBqbhyUaE=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js></script><script>function getMermaidTheme(){return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"default"}function initializeMermaid(){mermaid.initialize({startOnLoad:!1,theme:getMermaidTheme(),securityLevel:"loose",fontFamily:"inherit",themeVariables:{primaryColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#66b3ff":"#00e",primaryTextColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#e8e8e8":"#222",primaryBorderColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#444":"#222",lineColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#444":"#222",sectionBkgColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#2a2a2a":"#f9f9f9",altSectionBkgColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#1a1a1a":"#fff",gridColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#444":"#e0e0e0",tertiaryColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#3a3a3a":"#f0f0f0"}})}function processMermaidBlocks(){const e=document.querySelectorAll("code.language-mermaid");e.forEach((e,t)=>{const n=document.createElement("div");n.className="mermaid",n.id="mermaid-"+t,n.textContent=e.textContent;const s=e.parentElement;s.parentElement.replaceChild(n,s)}),e.length>0&&mermaid.init()}if(document.addEventListener("DOMContentLoaded",function(){initializeMermaid(),processMermaidBlocks()}),window.matchMedia){const e=window.matchMedia("(prefers-color-scheme: dark)");e.addEventListener("change",function(){initializeMermaid();const t=document.querySelectorAll(".mermaid");t.forEach((e,t)=>{e.id="mermaid-rerender-"+t,e.removeAttribute("data-processed")}),t.length>0&&mermaid.init()})}</script></head><body><header><h1>Theta Nil's Site</h1><nav><ul><li><a href=/>Home</a></li><li><a aria-current=true class=ancestor href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li></ul></nav></header><main><h1>Distributed Monolith Pipeline</h1><time datetime=2025-10-06T11:00:00+00:00>October 6, 2025</time><h2 id=overview>Overview</h2><p>This proposal outlines the release pipeline for a distributed monolith system using Bazel as the build system. The architecture consists of component repositories that feed into an integration repository, which maintains the last-known-good state and orchestrates releases.</p><h2 id=system-architecture>System Architecture</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>graph TB
+    subgraph &#34;Component Repositories&#34;
+        C1[Component A&lt;br/&gt;Independent versioning]
+        C2[Component B&lt;br/&gt;Independent versioning]
+        C3[Component C&lt;br/&gt;Independent versioning]
+        Cn[Component N&lt;br/&gt;Independent versioning]
+    end
+    
+    subgraph &#34;Integration Repository&#34;
+        IR[Integration Repo&lt;br/&gt;Root modules &amp; configuration]
+        LKG[Last-Known-Good State&lt;br/&gt;Pinned versions]
+        IT[Integration Testing&lt;br/&gt;Hardware tests]
+    end
+    
+    subgraph &#34;Release Artifacts&#34;
+        CD[Consolidated Distribution&lt;br/&gt;Tagged release]
+    end
+    
+    C1 --&gt; IR
+    C2 --&gt; IR
+    C3 --&gt; IR
+    Cn --&gt; IR
+    
+    IR --&gt; LKG
+    IR --&gt; IT
+    IT --&gt; LKG
+    LKG --&gt; CD
+</code></pre><h2 id=release-pipeline-stages>Release Pipeline Stages</h2><p>The pipeline consists of 5 distinct stages:</p><h3 id=stage-flow-diagram>Stage Flow Diagram</h3><pre tabindex=0><code class=language-mermaid data-lang=mermaid>flowchart LR
+    S1[1. COMPONENT_UPDATED] --&gt; S2[2. COMPONENT PR ISSUED]
+    S2 --&gt; S3[3. COMPONENT LOCAL UNITS PASSED]
+    S3 --&gt; S4[4. CONFIGURATION PASSED]
+    S4 --&gt; S5[5. COMPONENT UPDATED IN CONFIG]
+    
+    style S1 fill:#e1f5fe
+    style S2 fill:#f3e5f5
+    style S3 fill:#e8f5e8
+    style S4 fill:#fff3e0
+    style S5 fill:#fce4ec
+</code></pre><h2 id=detailed-workflow>Detailed Workflow</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>sequenceDiagram
+    participant Dev as Developer
+    participant CR as Component Repo
+    participant IQ as Integration Queue
+    participant IR as Integration Repo
+    participant HW as Hardware Test
+    participant LKG as Last-Known-Good
+    participant Bot as Dependency Bot
+
+    Note over Dev, CR: Component Development Phase
+    Dev-&gt;&gt;CR: Component update
+    CR-&gt;&gt;CR: Run component unit tests
+    
+    alt Unit tests pass
+        CR-&gt;&gt;CR: Create draft tag/release
+        CR-&gt;&gt;IQ: Submit PR to integration repo
+        
+        Note over IQ, IR: Integration Phase
+        IQ-&gt;&gt;IR: Queue PR (serial processing)
+        IR-&gt;&gt;HW: Trigger integration tests
+        
+        alt Integration tests pass
+            HW-&gt;&gt;IR: Test results: PASS
+            IR-&gt;&gt;IR: Merge PR
+            IR-&gt;&gt;LKG: Update last-known-good state
+            IR-&gt;&gt;IR: Tag integration release
+            IR-&gt;&gt;Bot: Trigger dependency update event
+            Bot-&gt;&gt;LKG: Update consolidated distribution
+        else Integration tests fail
+            HW-&gt;&gt;IR: Test results: FAIL
+            IR-&gt;&gt;IQ: Reject PR
+            IQ-&gt;&gt;CR: Notify failure
+        end
+    else Unit tests fail
+        CR-&gt;&gt;Dev: Notify test failure
+    end
+</code></pre><h2 id=component-repository-workflow>Component Repository Workflow</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>stateDiagram-v2
+    [*] --&gt; Development
+    Development --&gt; UnitTesting: Code changes committed
+    UnitTesting --&gt; DraftRelease: Tests pass
+    UnitTesting --&gt; Development: Tests fail
+    DraftRelease --&gt; PRSubmission: Create draft tag
+    PRSubmission --&gt; IntegrationQueue: Submit to integration repo
+    IntegrationQueue --&gt; [*]: Awaiting integration results
+</code></pre><h2 id=integration-repository-workflow>Integration Repository Workflow</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>stateDiagram-v2
+    [*] --&gt; QueuedPR: PR received from component
+    QueuedPR --&gt; IntegrationTest: Serial queue processing
+    IntegrationTest --&gt; ConfigurationTest: Basic integration pass
+    ConfigurationTest --&gt; HardwareTest: Config validation pass
+    HardwareTest --&gt; MergePR: All tests pass
+    HardwareTest --&gt; RejectPR: Tests fail
+    MergePR --&gt; UpdateLKG: Update last-known-good
+    UpdateLKG --&gt; TagRelease: Create integration tag
+    TagRelease --&gt; TriggerBot: Notify dependency bot
+    TriggerBot --&gt; [*]: Process complete
+    RejectPR --&gt; [*]: Notify component repo
+</code></pre><h2 id=last-known-good-state-management>Last-Known-Good State Management</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>graph TD
+    subgraph &#34;Last-Known-Good State&#34;
+        LKG1[Configuration A&lt;br/&gt;Component versions pinned]
+        LKG2[Configuration B&lt;br/&gt;Component versions pinned]
+        LKGn[Configuration N&lt;br/&gt;Component versions pinned]
+    end
+    
+    subgraph &#34;Component Versions&#34;
+        V1[Component A: v1.2.3]
+        V2[Component B: v2.1.0]
+        V3[Component C: v1.5.2]
+        Vn[Component N: v3.0.1]
+    end
+    
+    LKG1 --&gt; V1
+    LKG1 --&gt; V2
+    LKG1 --&gt; V3
+    LKG1 --&gt; Vn
+    
+    subgraph &#34;Consolidated Distribution&#34;
+        CD1[Release v2024.10.1&lt;br/&gt;Bazel build artifacts]
+    end
+    
+    LKG1 --&gt; CD1
+</code></pre><h2 id=key-features>Key Features</h2><h3 id=serial-queue-processing>Serial Queue Processing</h3><ul><li>PRs are processed one at a time to ensure stability</li><li>Prevents integration conflicts between simultaneous changes</li><li>Maintains deterministic build states</li></ul><h3 id=independent-component-versioning>Independent Component Versioning</h3><ul><li>Each component repository maintains its own release cadence</li><li>Components can evolve independently while integration tests ensure compatibility</li><li>Draft releases allow for validation before integration</li></ul><h3 id=hardware-testing-integration>Hardware Testing Integration</h3><ul><li>Integration tests include hardware validation</li><li>Ensures the full system works in realistic deployment scenarios</li><li>Provides confidence in release quality</li></ul><h3 id=event-driven-updates>Event-Driven Updates</h3><ul><li>Dependency bot automatically updates configurations</li><li>Reduces manual overhead in maintaining version consistency</li><li>Ensures timely propagation of successful integrations</li></ul><h2 id=benefits>Benefits</h2><ol><li><strong>Scalability</strong>: Components can be developed and released independently</li><li><strong>Quality Assurance</strong>: Multiple testing stages ensure system reliability</li><li><strong>Traceability</strong>: Clear audit trail from component changes to releases</li><li><strong>Automation</strong>: Minimal manual intervention required</li><li><strong>Flexibility</strong>: Multiple last-known-good states support different deployment scenarios</li></ol><h2 id=implementation-considerations>Implementation Considerations</h2><ul><li>Bazel workspace configuration must be maintained in the integration repository</li><li>Hardware test infrastructure needs to be provisioned and maintained</li><li>Serial queue processing may create bottlenecks during high-velocity periods</li><li>Rollback strategies should be defined for failed integrations</li><li>Monitoring and alerting should be implemented for pipeline health</li></ul></main><footer><p>Copyright 2025. All rights reserved.</p></footer></body></html>

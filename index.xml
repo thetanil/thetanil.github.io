@@ -1,4 +1,35 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Home on Theta Nil's Site</title><link>https://thetanil.github.io/</link><description>Recent content in Home on Theta Nil's Site</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Sun, 05 Oct 2025 11:00:00 +0000</lastBuildDate><atom:link href="https://thetanil.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Accursed</title><link>https://thetanil.github.io/posts/accursed/</link><pubDate>Sun, 05 Oct 2025 11:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/accursed/</guid><description>&lt;h2 id="design"&gt;design&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Home on Theta Nil's Site</title><link>https://thetanil.github.io/</link><description>Recent content in Home on Theta Nil's Site</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Mon, 06 Oct 2025 11:00:00 +0000</lastBuildDate><atom:link href="https://thetanil.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Distributed Monolith Pipeline</title><link>https://thetanil.github.io/posts/dist-mono-pipe/</link><pubDate>Mon, 06 Oct 2025 11:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/dist-mono-pipe/</guid><description>&lt;h2 id="overview"&gt;Overview&lt;/h2&gt;
+&lt;p&gt;This proposal outlines the release pipeline for a distributed monolith system using Bazel as the build system. The architecture consists of component repositories that feed into an integration repository, which maintains the last-known-good state and orchestrates releases.&lt;/p&gt;
+&lt;h2 id="system-architecture"&gt;System Architecture&lt;/h2&gt;
+&lt;pre tabindex="0"&gt;&lt;code class="language-mermaid" data-lang="mermaid"&gt;graph TB
+ subgraph &amp;#34;Component Repositories&amp;#34;
+ C1[Component A&amp;lt;br/&amp;gt;Independent versioning]
+ C2[Component B&amp;lt;br/&amp;gt;Independent versioning]
+ C3[Component C&amp;lt;br/&amp;gt;Independent versioning]
+ Cn[Component N&amp;lt;br/&amp;gt;Independent versioning]
+ end
+ 
+ subgraph &amp;#34;Integration Repository&amp;#34;
+ IR[Integration Repo&amp;lt;br/&amp;gt;Root modules &amp;amp; configuration]
+ LKG[Last-Known-Good State&amp;lt;br/&amp;gt;Pinned versions]
+ IT[Integration Testing&amp;lt;br/&amp;gt;Hardware tests]
+ end
+ 
+ subgraph &amp;#34;Release Artifacts&amp;#34;
+ CD[Consolidated Distribution&amp;lt;br/&amp;gt;Tagged release]
+ end
+ 
+ C1 --&amp;gt; IR
+ C2 --&amp;gt; IR
+ C3 --&amp;gt; IR
+ Cn --&amp;gt; IR
+ 
+ IR --&amp;gt; LKG
+ IR --&amp;gt; IT
+ IT --&amp;gt; LKG
+ LKG --&amp;gt; CD
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id="release-pipeline-stages"&gt;Release Pipeline Stages&lt;/h2&gt;
+&lt;p&gt;The pipeline consists of 5 distinct stages:&lt;/p&gt;</description></item><item><title>Accursed</title><link>https://thetanil.github.io/posts/accursed/</link><pubDate>Sun, 05 Oct 2025 11:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/accursed/</guid><description>&lt;h2 id="design"&gt;design&lt;/h2&gt;
 &lt;h3 id="midgaard-static-site-recreation"&gt;Midgaard Static Site Recreation&lt;/h3&gt;
 &lt;p&gt;Recreating the classic MUD city of Midgaard as a Hugo static site, where each room is a markdown file with YAML frontmatter containing spatial and descriptive data.&lt;/p&gt;
 &lt;h4 id="room-structure"&gt;Room Structure&lt;/h4&gt;
