@@ -1,4 +1,24 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Home on Theta Nil's Site</title><link>https://thetanil.github.io/</link><description>Recent content in Home on Theta Nil's Site</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Mon, 06 Oct 2025 11:00:00 +0000</lastBuildDate><atom:link href="https://thetanil.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Distributed Monolith Pipeline</title><link>https://thetanil.github.io/posts/dist-mono-pipe/</link><pubDate>Mon, 06 Oct 2025 11:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/dist-mono-pipe/</guid><description>&lt;h2 id="overview"&gt;Overview&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Home on Theta Nil's Site</title><link>https://thetanil.github.io/</link><description>Recent content in Home on Theta Nil's Site</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Tue, 07 Oct 2025 12:00:00 +0000</lastBuildDate><atom:link href="https://thetanil.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Distributed Monolith Pipeline Analysis: Improvements and Refinements</title><link>https://thetanil.github.io/posts/dist-mono-pipe-analysis/</link><pubDate>Tue, 07 Oct 2025 12:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/dist-mono-pipe-analysis/</guid><description>&lt;h2 id="executive-summary"&gt;Executive Summary&lt;/h2&gt;
+&lt;p&gt;This analysis examines the proposed distributed monolith pipeline architecture with 47 component repositories feeding into a central integration repository. After reviewing the current design and evaluating GitHub&amp;rsquo;s merge queue capabilities, several key improvements and refinements are identified to enhance velocity, reliability, and operational efficiency.&lt;/p&gt;
+&lt;h2 id="current-architecture-analysis"&gt;Current Architecture Analysis&lt;/h2&gt;
+&lt;h3 id="strengths"&gt;Strengths&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Clear separation of concerns&lt;/strong&gt;: Component repositories maintain independence while integration testing ensures compatibility&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Serial queue processing&lt;/strong&gt;: Prevents integration conflicts and maintains deterministic builds&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Hardware validation&lt;/strong&gt;: Comprehensive testing including real deployment scenarios&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Iterative manifest management&lt;/strong&gt;: Direct updates maintain consistency without external tooling&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="current-limitations"&gt;Current Limitations&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Potential bottlenecks&lt;/strong&gt;: Serial processing of 47 components could create significant delays&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Limited concurrency&lt;/strong&gt;: No parallelization of compatible changes&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Manual queue management&lt;/strong&gt;: Custom implementation requires maintenance overhead&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Lack of priority handling&lt;/strong&gt;: No mechanism for urgent fixes or critical updates&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Limited failure recovery&lt;/strong&gt;: Basic retry mechanisms without intelligent failure analysis&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="github-merge-queue-integration-opportunities"&gt;GitHub Merge Queue Integration Opportunities&lt;/h2&gt;
+&lt;h3 id="native-github-features-available"&gt;Native GitHub Features Available&lt;/h3&gt;
+&lt;p&gt;Based on GitHub&amp;rsquo;s merge queue documentation, several features directly address current limitations:&lt;/p&gt;</description></item><item><title>Distributed Monolith Pipeline</title><link>https://thetanil.github.io/posts/dist-mono-pipe/</link><pubDate>Mon, 06 Oct 2025 11:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/dist-mono-pipe/</guid><description>&lt;h2 id="overview"&gt;Overview&lt;/h2&gt;
 &lt;p&gt;This proposal outlines the release pipeline for a distributed monolith system using Bazel as the build system. The architecture consists of component repositories that feed into an integration repository, which maintains the manifest and orchestrates releases.&lt;/p&gt;
 &lt;h2 id="system-architecture"&gt;System Architecture&lt;/h2&gt;
 &lt;pre tabindex="0"&gt;&lt;code class="language-mermaid" data-lang="mermaid"&gt;graph TB
