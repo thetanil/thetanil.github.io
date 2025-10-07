@@ -26,72 +26,69 @@
     IT --&gt; LKG
     LKG --&gt; CD
 </code></pre><h2 id=release-pipeline-stages>Release Pipeline Stages</h2><p>The pipeline consists of 5 distinct stages:</p><h3 id=stage-flow-diagram>Stage Flow Diagram</h3><pre tabindex=0><code class=language-mermaid data-lang=mermaid>flowchart LR
-    S1[1. COMPONENT_UPDATED] --&gt; S2[2. COMPONENT PR ISSUED]
-    S2 --&gt; S3[3. COMPONENT LOCAL UNITS PASSED]
-    S3 --&gt; S4[4. CONFIGURATION PASSED]
-    S4 --&gt; S5[5. COMPONENT UPDATED IN CONFIG]
-    
-    style S1 fill:#e1f5fe
-    style S2 fill:#f3e5f5
-    style S3 fill:#e8f5e8
-    style S4 fill:#fff3e0
-    style S5 fill:#fce4ec
+    S1[1. COMPONENT PR SUBMITTED] --&gt; S2[2. COMPONENT UNIT TESTS PASS]
+    S2 --&gt; S3[3. INTEGRATION PR CREATED]
+    S3 --&gt; S4[4. INTEGRATION TESTS PASS]
+    S4 --&gt; S5[5. CONFIG UPDATED &amp; TAGGED]
 </code></pre><h2 id=detailed-workflow>Detailed Workflow</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>sequenceDiagram
     participant Dev as Developer
     participant CR as Component Repo
     participant IQ as Integration Queue
     participant IR as Integration Repo
     participant HW as Hardware Test
-    participant LKG as Last-Known-Good
-    participant Bot as Dependency Bot
+    participant LKG as Last-Known-Good Config
 
     Note over Dev, CR: Component Development Phase
-    Dev-&gt;&gt;CR: Component update
+    Dev-&gt;&gt;CR: Submit pull request
     CR-&gt;&gt;CR: Run component unit tests
     
     alt Unit tests pass
-        CR-&gt;&gt;CR: Create draft tag/release
+        CR-&gt;&gt;CR: Merge PR &amp; create draft tag/release
         CR-&gt;&gt;IQ: Submit PR to integration repo
         
         Note over IQ, IR: Integration Phase
         IQ-&gt;&gt;IR: Queue PR (serial processing)
-        IR-&gt;&gt;HW: Trigger integration tests
+        Note over IR, LKG: PR uses current last-known-good config
+        IR-&gt;&gt;HW: Trigger integration tests with PR changes
         
         alt Integration tests pass
             HW-&gt;&gt;IR: Test results: PASS
             IR-&gt;&gt;IR: Merge PR
-            IR-&gt;&gt;LKG: Update last-known-good state
+            Note over IR, LKG: Merge updates last-known-good config
+            IR-&gt;&gt;LKG: Update config with new component version
             IR-&gt;&gt;IR: Tag integration release
-            IR-&gt;&gt;Bot: Trigger dependency update event
-            Bot-&gt;&gt;LKG: Update consolidated distribution
+            Note over LKG: Next PR will use updated config
         else Integration tests fail
             HW-&gt;&gt;IR: Test results: FAIL
             IR-&gt;&gt;IQ: Reject PR
             IQ-&gt;&gt;CR: Notify failure
+            Note over LKG: Config remains unchanged
         end
     else Unit tests fail
         CR-&gt;&gt;Dev: Notify test failure
     end
 </code></pre><h2 id=component-repository-workflow>Component Repository Workflow</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>stateDiagram-v2
     [*] --&gt; Development
-    Development --&gt; UnitTesting: Code changes committed
-    UnitTesting --&gt; DraftRelease: Tests pass
+    Development --&gt; PRSubmission: Submit pull request
+    PRSubmission --&gt; UnitTesting: Run component unit tests
+    UnitTesting --&gt; MergePR: Tests pass
     UnitTesting --&gt; Development: Tests fail
-    DraftRelease --&gt; PRSubmission: Create draft tag
-    PRSubmission --&gt; IntegrationQueue: Submit to integration repo
-    IntegrationQueue --&gt; [*]: Awaiting integration results
+    MergePR --&gt; DraftRelease: Create draft tag/release
+    DraftRelease --&gt; IntegrationPR: Submit PR to integration repo
+    IntegrationPR --&gt; [*]: Awaiting integration results
 </code></pre><h2 id=integration-repository-workflow>Integration Repository Workflow</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>stateDiagram-v2
     [*] --&gt; QueuedPR: PR received from component
-    QueuedPR --&gt; IntegrationTest: Serial queue processing
+    QueuedPR --&gt; LoadCurrentLKG: Load current last-known-good config
+    LoadCurrentLKG --&gt; IntegrationTest: Serial queue processing
     IntegrationTest --&gt; ConfigurationTest: Basic integration pass
     ConfigurationTest --&gt; HardwareTest: Config validation pass
     HardwareTest --&gt; MergePR: All tests pass
     HardwareTest --&gt; RejectPR: Tests fail
-    MergePR --&gt; UpdateLKG: Update last-known-good
+    MergePR --&gt; UpdateLKG: Merge updates last-known-good config
     UpdateLKG --&gt; TagRelease: Create integration tag
-    TagRelease --&gt; TriggerBot: Notify dependency bot
-    TriggerBot --&gt; [*]: Process complete
-    RejectPR --&gt; [*]: Notify component repo
+    TagRelease --&gt; ReadyForNext: Ready for next PR
+    ReadyForNext --&gt; [*]: Updated config available
+    RejectPR --&gt; [*]: Notify component repo, config unchanged
 </code></pre><h2 id=last-known-good-state-management>Last-Known-Good State Management</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>graph TD
     subgraph &#34;Last-Known-Good State&#34;
         LKG1[Configuration A&lt;br/&gt;Component versions pinned]
@@ -116,4 +113,4 @@
     end
     
     LKG1 --&gt; CD1
-</code></pre><h2 id=key-features>Key Features</h2><h3 id=serial-queue-processing>Serial Queue Processing</h3><ul><li>PRs are processed one at a time to ensure stability</li><li>Prevents integration conflicts between simultaneous changes</li><li>Maintains deterministic build states</li></ul><h3 id=independent-component-versioning>Independent Component Versioning</h3><ul><li>Each component repository maintains its own release cadence</li><li>Components can evolve independently while integration tests ensure compatibility</li><li>Draft releases allow for validation before integration</li></ul><h3 id=hardware-testing-integration>Hardware Testing Integration</h3><ul><li>Integration tests include hardware validation</li><li>Ensures the full system works in realistic deployment scenarios</li><li>Provides confidence in release quality</li></ul><h3 id=event-driven-updates>Event-Driven Updates</h3><ul><li>Dependency bot automatically updates configurations</li><li>Reduces manual overhead in maintaining version consistency</li><li>Ensures timely propagation of successful integrations</li></ul><h2 id=benefits>Benefits</h2><ol><li><strong>Scalability</strong>: Components can be developed and released independently</li><li><strong>Quality Assurance</strong>: Multiple testing stages ensure system reliability</li><li><strong>Traceability</strong>: Clear audit trail from component changes to releases</li><li><strong>Automation</strong>: Minimal manual intervention required</li><li><strong>Flexibility</strong>: Multiple last-known-good states support different deployment scenarios</li></ol><h2 id=implementation-considerations>Implementation Considerations</h2><ul><li>Bazel workspace configuration must be maintained in the integration repository</li><li>Hardware test infrastructure needs to be provisioned and maintained</li><li>Serial queue processing may create bottlenecks during high-velocity periods</li><li>Rollback strategies should be defined for failed integrations</li><li>Monitoring and alerting should be implemented for pipeline health</li></ul></main><footer><p>Copyright 2025. All rights reserved.</p></footer></body></html>
+</code></pre><h2 id=key-features>Key Features</h2><h3 id=serial-queue-processing>Serial Queue Processing</h3><ul><li>PRs are processed one at a time to ensure stability</li><li>Prevents integration conflicts between simultaneous changes</li><li>Maintains deterministic build states</li></ul><h3 id=independent-component-versioning>Independent Component Versioning</h3><ul><li>Each component repository maintains its own release cadence</li><li>Components can evolve independently while integration tests ensure compatibility</li><li>Draft releases allow for validation before integration</li></ul><h3 id=hardware-testing-integration>Hardware Testing Integration</h3><ul><li>Integration tests include hardware validation</li><li>Ensures the full system works in realistic deployment scenarios</li><li>Provides confidence in release quality</li></ul><h3 id=iterative-configuration-updates>Iterative Configuration Updates</h3><ul><li>Each successful PR merge directly updates the last-known-good configuration</li><li>Next PR in the queue uses the updated configuration state</li><li>No external dependency management needed - the integration repo maintains state internally</li><li>Ensures timely propagation of successful integrations through the serial queue</li></ul><h2 id=benefits>Benefits</h2><ol><li><strong>Scalability</strong>: Components can be developed and released independently</li><li><strong>Quality Assurance</strong>: Multiple testing stages ensure system reliability</li><li><strong>Traceability</strong>: Clear audit trail from component changes to releases</li><li><strong>Automation</strong>: Minimal manual intervention required</li><li><strong>Flexibility</strong>: Multiple last-known-good states support different deployment scenarios</li></ol><h2 id=implementation-considerations>Implementation Considerations</h2><ul><li>Bazel workspace configuration must be maintained in the integration repository</li><li>Hardware test infrastructure needs to be provisioned and maintained</li><li>Serial queue processing may create bottlenecks during high-velocity periods</li><li>Rollback strategies should be defined for failed integrations</li><li>Monitoring and alerting should be implemented for pipeline health</li></ul></main><footer><p>Copyright 2025. All rights reserved.</p></footer></body></html>
