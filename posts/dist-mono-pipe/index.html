@@ -1,4 +1,4 @@
-<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width"><title>Distributed Monolith Pipeline | Theta Nil's Site</title><link rel=stylesheet href=/css/main.min.c7a5c1c6627bdd92510df0d2272d0f86694f49366048d0ee3065e20d315759b3.css integrity="sha256-x6XBxmJ73ZJRDfDSJy0PhmlPSTZgSNDuMGXiDTFXWbM=" crossorigin=anonymous><script src=/js/main.23cd0c7d837263b9eaeb96ee2d9ccfa2969daa3fa00fa1c1fe8701a9b87251a1.js integrity="sha256-I80MfYNyY7nq65buLZzPopadqj+gD6HB/ocBqbhyUaE=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js></script><script>function getMermaidTheme(){return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"default"}function initializeMermaid(){mermaid.initialize({startOnLoad:!1,theme:getMermaidTheme(),securityLevel:"loose",fontFamily:"inherit",themeVariables:{primaryColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#66b3ff":"#00e",primaryTextColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#e8e8e8":"#222",primaryBorderColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#444":"#222",lineColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#444":"#222",sectionBkgColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#2a2a2a":"#f9f9f9",altSectionBkgColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#1a1a1a":"#fff",gridColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#444":"#e0e0e0",tertiaryColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#3a3a3a":"#f0f0f0"}})}function processMermaidBlocks(){const e=document.querySelectorAll("code.language-mermaid");e.forEach((e,t)=>{const n=document.createElement("div");n.className="mermaid",n.id="mermaid-"+t,n.textContent=e.textContent;const s=e.parentElement;s.parentElement.replaceChild(n,s)}),e.length>0&&mermaid.init()}if(document.addEventListener("DOMContentLoaded",function(){initializeMermaid(),processMermaidBlocks()}),window.matchMedia){const e=window.matchMedia("(prefers-color-scheme: dark)");e.addEventListener("change",function(){initializeMermaid();const t=document.querySelectorAll(".mermaid");t.forEach((e,t)=>{e.id="mermaid-rerender-"+t,e.removeAttribute("data-processed")}),t.length>0&&mermaid.init()})}</script></head><body><header><h1>Theta Nil's Site</h1><nav><ul><li><a href=/>Home</a></li><li><a aria-current=true class=ancestor href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li></ul></nav></header><main><h1>Distributed Monolith Pipeline</h1><time datetime=2025-10-06T11:00:00+00:00>October 6, 2025</time><h2 id=overview>Overview</h2><p>This proposal outlines the release pipeline for a distributed monolith system using Bazel as the build system. The architecture consists of component repositories that feed into an integration repository, which maintains the last-known-good state and orchestrates releases.</p><h2 id=system-architecture>System Architecture</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>graph TB
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width"><title>Distributed Monolith Pipeline | Theta Nil's Site</title><link rel=stylesheet href=/css/main.min.c7a5c1c6627bdd92510df0d2272d0f86694f49366048d0ee3065e20d315759b3.css integrity="sha256-x6XBxmJ73ZJRDfDSJy0PhmlPSTZgSNDuMGXiDTFXWbM=" crossorigin=anonymous><script src=/js/main.23cd0c7d837263b9eaeb96ee2d9ccfa2969daa3fa00fa1c1fe8701a9b87251a1.js integrity="sha256-I80MfYNyY7nq65buLZzPopadqj+gD6HB/ocBqbhyUaE=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js></script><script>function getMermaidTheme(){return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"default"}function initializeMermaid(){mermaid.initialize({startOnLoad:!1,theme:getMermaidTheme(),securityLevel:"loose",fontFamily:"inherit",themeVariables:{primaryColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#66b3ff":"#00e",primaryTextColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#e8e8e8":"#222",primaryBorderColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#444":"#222",lineColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#444":"#222",sectionBkgColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#2a2a2a":"#f9f9f9",altSectionBkgColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#1a1a1a":"#fff",gridColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#444":"#e0e0e0",tertiaryColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#3a3a3a":"#f0f0f0"}})}function processMermaidBlocks(){const e=document.querySelectorAll("code.language-mermaid");e.forEach((e,t)=>{const n=document.createElement("div");n.className="mermaid",n.id="mermaid-"+t,n.textContent=e.textContent;const s=e.parentElement;s.parentElement.replaceChild(n,s)}),e.length>0&&mermaid.init()}if(document.addEventListener("DOMContentLoaded",function(){initializeMermaid(),processMermaidBlocks()}),window.matchMedia){const e=window.matchMedia("(prefers-color-scheme: dark)");e.addEventListener("change",function(){initializeMermaid();const t=document.querySelectorAll(".mermaid");t.forEach((e,t)=>{e.id="mermaid-rerender-"+t,e.removeAttribute("data-processed")}),t.length>0&&mermaid.init()})}</script></head><body><header><h1>Theta Nil's Site</h1><nav><ul><li><a href=/>Home</a></li><li><a aria-current=true class=ancestor href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li></ul></nav></header><main><h1>Distributed Monolith Pipeline</h1><time datetime=2025-10-06T11:00:00+00:00>October 6, 2025</time><h2 id=overview>Overview</h2><p>This proposal outlines the release pipeline for a distributed monolith system using Bazel as the build system. The architecture consists of component repositories that feed into an integration repository, which maintains the manifest and orchestrates releases.</p><h2 id=system-architecture>System Architecture</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>graph TB
     subgraph &#34;Component Repositories&#34;
         C1[Component A&lt;br/&gt;Independent versioning]
         C2[Component B&lt;br/&gt;Independent versioning]
@@ -8,7 +8,7 @@
     
     subgraph &#34;Integration Repository&#34;
         IR[Integration Repo&lt;br/&gt;Root modules &amp; configuration]
-        LKG[Last-Known-Good State&lt;br/&gt;Pinned versions]
+        M[Manifest&lt;br/&gt;Pinned versions]
         IT[Integration Testing&lt;br/&gt;Hardware tests]
     end
     
@@ -21,48 +21,49 @@
     C3 --&gt; IR
     Cn --&gt; IR
     
-    IR --&gt; LKG
+    IR --&gt; M
     IR --&gt; IT
-    IT --&gt; LKG
-    LKG --&gt; CD
+    IT --&gt; M
+    M --&gt; CD
 </code></pre><h2 id=release-pipeline-stages>Release Pipeline Stages</h2><p>The pipeline consists of 5 distinct stages:</p><h3 id=stage-flow-diagram>Stage Flow Diagram</h3><pre tabindex=0><code class=language-mermaid data-lang=mermaid>flowchart LR
     S1[1. COMPONENT PR SUBMITTED] --&gt; S2[2. COMPONENT UNIT TESTS PASS]
     S2 --&gt; S3[3. INTEGRATION PR CREATED]
     S3 --&gt; S4[4. INTEGRATION TESTS PASS]
-    S4 --&gt; S5[5. CONFIG UPDATED &amp; TAGGED]
+    S4 --&gt; S5[5. MANIFEST UPDATED &amp; TAGGED]
 </code></pre><h2 id=detailed-workflow>Detailed Workflow</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>sequenceDiagram
     participant Dev as Developer
     participant CR as Component Repo
     participant IQ as Integration Queue
     participant IR as Integration Repo
     participant HW as Hardware Test
-    participant LKG as Last-Known-Good Config
+    participant M as Manifest
 
     Note over Dev, CR: Component Development Phase
     Dev-&gt;&gt;CR: Submit pull request
     CR-&gt;&gt;CR: Run component unit tests
     
     alt Unit tests pass
-        CR-&gt;&gt;CR: Merge PR &amp; create draft tag/release
-        CR-&gt;&gt;IQ: Submit PR to integration repo
+        CR-&gt;&gt;CR: Merge PR to main
+        CR-&gt;&gt;CR: git ref / optional bazel pkg
+        CR-&gt;&gt;IQ: Submit PR (request increment)
         
         Note over IQ, IR: Integration Phase
         IQ-&gt;&gt;IR: Queue PR (serial processing)
-        Note over IR, LKG: PR uses current last-known-good config
+        Note over IR, M: PR uses current manifest
         IR-&gt;&gt;HW: Trigger integration tests with PR changes
         
         alt Integration tests pass
             HW-&gt;&gt;IR: Test results: PASS
             IR-&gt;&gt;IR: Merge PR
-            Note over IR, LKG: Merge updates last-known-good config
-            IR-&gt;&gt;LKG: Update config with new component version
+            Note over IR, M: Merge updates manifest
+            IR-&gt;&gt;M: Update manifest with new component version
             IR-&gt;&gt;IR: Tag integration release
-            Note over LKG: Next PR will use updated config
+            Note over M: Next PR will use updated manifest
         else Integration tests fail
             HW-&gt;&gt;IR: Test results: FAIL
             IR-&gt;&gt;IQ: Reject PR
             IQ-&gt;&gt;CR: Notify failure
-            Note over LKG: Config remains unchanged
+            Note over M: Manifest remains unchanged
         end
     else Unit tests fail
         CR-&gt;&gt;Dev: Notify test failure
@@ -73,27 +74,27 @@
     PRSubmission --&gt; UnitTesting: Run component unit tests
     UnitTesting --&gt; MergePR: Tests pass
     UnitTesting --&gt; Development: Tests fail
-    MergePR --&gt; DraftRelease: Create draft tag/release
+    MergePR --&gt; DraftRelease: Create draft tag/release (optional)
     DraftRelease --&gt; IntegrationPR: Submit PR to integration repo
     IntegrationPR --&gt; [*]: Awaiting integration results
 </code></pre><h2 id=integration-repository-workflow>Integration Repository Workflow</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>stateDiagram-v2
     [*] --&gt; QueuedPR: PR received from component
-    QueuedPR --&gt; LoadCurrentLKG: Load current last-known-good config
-    LoadCurrentLKG --&gt; IntegrationTest: Serial queue processing
+    QueuedPR --&gt; LoadCurrentManifest: Load current manifest
+    LoadCurrentManifest --&gt; IntegrationTest: Serial queue processing
     IntegrationTest --&gt; ConfigurationTest: Basic integration pass
     ConfigurationTest --&gt; HardwareTest: Config validation pass
     HardwareTest --&gt; MergePR: All tests pass
     HardwareTest --&gt; RejectPR: Tests fail
-    MergePR --&gt; UpdateLKG: Merge updates last-known-good config
-    UpdateLKG --&gt; TagRelease: Create integration tag
+    MergePR --&gt; UpdateManifest: Merge updates manifest
+    UpdateManifest --&gt; TagRelease: Create integration tag
     TagRelease --&gt; ReadyForNext: Ready for next PR
-    ReadyForNext --&gt; [*]: Updated config available
-    RejectPR --&gt; [*]: Notify component repo, config unchanged
-</code></pre><h2 id=last-known-good-state-management>Last-Known-Good State Management</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>graph TD
-    subgraph &#34;Last-Known-Good State&#34;
-        LKG1[Configuration A&lt;br/&gt;Component versions pinned]
-        LKG2[Configuration B&lt;br/&gt;Component versions pinned]
-        LKGn[Configuration N&lt;br/&gt;Component versions pinned]
+    ReadyForNext --&gt; [*]: Updated manifest available
+    RejectPR --&gt; [*]: Notify component repo, manifest unchanged
+</code></pre><h2 id=manifest-management>Manifest Management</h2><pre tabindex=0><code class=language-mermaid data-lang=mermaid>graph TD
+    subgraph &#34;Manifest Configurations&#34;
+        M1[Configuration A&lt;br/&gt;Component versions pinned]
+        M2[Configuration B&lt;br/&gt;Component versions pinned]
+        Mn[Configuration N&lt;br/&gt;Component versions pinned]
     end
     
     subgraph &#34;Component Versions&#34;
@@ -103,14 +104,14 @@
         Vn[Component N: v3.0.1]
     end
     
-    LKG1 --&gt; V1
-    LKG1 --&gt; V2
-    LKG1 --&gt; V3
-    LKG1 --&gt; Vn
+    M1 --&gt; V1
+    M1 --&gt; V2
+    M1 --&gt; V3
+    M1 --&gt; Vn
     
     subgraph &#34;Consolidated Distribution&#34;
         CD1[Release v2024.10.1&lt;br/&gt;Bazel build artifacts]
     end
     
-    LKG1 --&gt; CD1
-</code></pre><h2 id=key-features>Key Features</h2><h3 id=serial-queue-processing>Serial Queue Processing</h3><ul><li>PRs are processed one at a time to ensure stability</li><li>Prevents integration conflicts between simultaneous changes</li><li>Maintains deterministic build states</li></ul><h3 id=independent-component-versioning>Independent Component Versioning</h3><ul><li>Each component repository maintains its own release cadence</li><li>Components can evolve independently while integration tests ensure compatibility</li><li>Draft releases allow for validation before integration</li></ul><h3 id=hardware-testing-integration>Hardware Testing Integration</h3><ul><li>Integration tests include hardware validation</li><li>Ensures the full system works in realistic deployment scenarios</li><li>Provides confidence in release quality</li></ul><h3 id=iterative-configuration-updates>Iterative Configuration Updates</h3><ul><li>Each successful PR merge directly updates the last-known-good configuration</li><li>Next PR in the queue uses the updated configuration state</li><li>No external dependency management needed - the integration repo maintains state internally</li><li>Ensures timely propagation of successful integrations through the serial queue</li></ul><h2 id=benefits>Benefits</h2><ol><li><strong>Scalability</strong>: Components can be developed and released independently</li><li><strong>Quality Assurance</strong>: Multiple testing stages ensure system reliability</li><li><strong>Traceability</strong>: Clear audit trail from component changes to releases</li><li><strong>Automation</strong>: Minimal manual intervention required</li><li><strong>Flexibility</strong>: Multiple last-known-good states support different deployment scenarios</li></ol><h2 id=implementation-considerations>Implementation Considerations</h2><ul><li>Bazel workspace configuration must be maintained in the integration repository</li><li>Hardware test infrastructure needs to be provisioned and maintained</li><li>Serial queue processing may create bottlenecks during high-velocity periods</li><li>Rollback strategies should be defined for failed integrations</li><li>Monitoring and alerting should be implemented for pipeline health</li></ul></main><footer><p>Copyright 2025. All rights reserved.</p></footer></body></html>
+    M1 --&gt; CD1
+</code></pre><h2 id=key-features>Key Features</h2><h3 id=serial-queue-processing>Serial Queue Processing</h3><ul><li>PRs are processed one at a time to ensure stability</li><li>Prevents integration conflicts between simultaneous changes</li><li>Maintains deterministic build states</li></ul><h3 id=independent-component-versioning>Independent Component Versioning</h3><ul><li>Each component repository maintains its own release cadence</li><li>Components can evolve independently while integration tests ensure compatibility</li><li>Draft releases allow for validation before integration</li></ul><h3 id=hardware-testing-integration>Hardware Testing Integration</h3><ul><li>Integration tests include hardware validation</li><li>Ensures the full system works in realistic deployment scenarios</li><li>Provides confidence in release quality</li></ul><h3 id=iterative-manifest-updates>Iterative Manifest Updates</h3><ul><li>Each successful PR merge directly updates the manifest</li><li>Next PR in the queue uses the updated manifest state</li><li>No external dependency management needed - the integration repo maintains state internally</li><li>Ensures timely propagation of successful integrations through the serial queue</li></ul><h2 id=benefits>Benefits</h2><ol><li><strong>Scalability</strong>: Components can be developed and released independently</li><li><strong>Quality Assurance</strong>: Multiple testing stages ensure system reliability</li><li><strong>Traceability</strong>: Clear audit trail from component changes to releases</li><li><strong>Automation</strong>: Minimal manual intervention required</li><li><strong>Flexibility</strong>: Multiple manifest configurations support different deployment scenarios</li></ol><h2 id=implementation-considerations>Implementation Considerations</h2><ul><li>Bazel workspace configuration must be maintained in the integration repository</li><li>Hardware test infrastructure needs to be provisioned and maintained</li><li>Serial queue processing may create bottlenecks during high-velocity periods</li><li>Rollback strategies should be defined for failed integrations</li><li>Monitoring and alerting should be implemented for pipeline health</li></ul></main><footer><p>Copyright 2025. All rights reserved.</p></footer></body></html>
