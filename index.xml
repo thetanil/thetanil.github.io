@@ -320,7 +320,447 @@ window.addEventListener('resize', () =&gt; {
 &lt;li&gt;&lt;strong&gt;Time-based Animation&lt;/strong&gt;: Use timestamps for consistent animation speed&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Interactive&lt;/strong&gt;: Add mouse/touch events for interactive experiences&lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;This approach gives you the flexibility of fragment shaders with the scalability and styling capabilities of SVG!&lt;/p&gt;</description></item><item><title>Distributed Monolith Pipeline Analysis: Improvements and Refinements</title><link>https://thetanil.github.io/posts/dist-mono-pipe-analysis/</link><pubDate>Tue, 07 Oct 2025 12:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/dist-mono-pipe-analysis/</guid><description>&lt;h2 id="executive-summary"&gt;Executive Summary&lt;/h2&gt;
+&lt;p&gt;This approach gives you the flexibility of fragment shaders with the scalability and styling capabilities of SVG!&lt;/p&gt;</description></item><item><title>Wireframe Box Animation</title><link>https://thetanil.github.io/posts/svg_003/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_003/</guid><description>&lt;p&gt;This post demonstrates a 3D wireframe cube animation using JavaScript-generated SVG with normalized coordinates and matrix transformations.&lt;/p&gt;
+&lt;h3 id="animated-wireframes"&gt;Animated Wireframes:&lt;/h3&gt;
+&lt;div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;"&gt;
+&lt;button onclick="startAnimation('single')" style="padding: 10px 15px; background: #8BC34A; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 150px;"&gt;🎬 Rotating Box&lt;/button&gt;
+&lt;button onclick="startAnimation('multiple')" style="padding: 10px 15px; background: #03A9F4; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 150px;"&gt;🎬 Multiple Boxes&lt;/button&gt;
+&lt;button onclick="startAnimation('tunnel')" style="padding: 10px 15px; background: #9C27B0; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 150px;"&gt;🎬 Tunnel Animation&lt;/button&gt;
+&lt;button onclick="stopAnimation()" style="padding: 10px 15px; background: #F44336; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 120px;"&gt;⏹️ Stop Animation&lt;/button&gt;
+&lt;/div&gt;
+&lt;div id="svg-container" style="width: 100%; height: 100vh; margin: 0; padding: 0; background: #000;"&gt;&lt;/div&gt;
+&lt;script&gt;
+// 3D Math utilities
+function multiply4x4(a, b) {
+ const result = new Array(16);
+ for (let i = 0; i &lt; 4; i++) {
+ for (let j = 0; j &lt; 4; j++) {
+ result[i * 4 + j] = 0;
+ for (let k = 0; k &lt; 4; k++) {
+ result[i * 4 + j] += a[i * 4 + k] * b[k * 4 + j];
+ }
+ }
+ }
+ return result;
+}
+
+function rotationX(angle) {
+ const c = Math.cos(angle);
+ const s = Math.sin(angle);
+ return [
+ 1, 0, 0, 0,
+ 0, c, -s, 0,
+ 0, s, c, 0,
+ 0, 0, 0, 1
+ ];
+}
+
+function rotationY(angle) {
+ const c = Math.cos(angle);
+ const s = Math.sin(angle);
+ return [
+ c, 0, s, 0,
+ 0, 1, 0, 0,
+ -s, 0, c, 0,
+ 0, 0, 0, 1
+ ];
+}
+
+function rotationZ(angle) {
+ const c = Math.cos(angle);
+ const s = Math.sin(angle);
+ return [
+ c, -s, 0, 0,
+ s, c, 0, 0,
+ 0, 0, 1, 0,
+ 0, 0, 0, 1
+ ];
+}
+
+function perspective(fov, aspect, near, far) {
+ const f = 1.0 / Math.tan(fov / 2);
+ return [
+ f / aspect, 0, 0, 0,
+ 0, f, 0, 0,
+ 0, 0, (far + near) / (near - far), (2 * far * near) / (near - far),
+ 0, 0, -1, 0
+ ];
+}
+
+function transformPoint(matrix, x, y, z) {
+ const w = matrix[12] * x + matrix[13] * y + matrix[14] * z + matrix[15];
+ return {
+ x: (matrix[0] * x + matrix[1] * y + matrix[2] * z + matrix[3]) / w,
+ y: (matrix[4] * x + matrix[5] * y + matrix[6] * z + matrix[7]) / w,
+ z: (matrix[8] * x + matrix[9] * y + matrix[10] * z + matrix[11]) / w
+ };
+}
+
+// Convert normalized coordinates to SVG coordinates
+function normToSvg(nx, ny, width, height) {
+ const x = (nx + 1) * width * 0.5;
+ const y = (-ny + 1) * height * 0.5;
+ return { x, y };
+}
+
+// Define cube vertices (normalized coordinates -1 to 1)
+const cubeVertices = [
+ // Front face
+ [-1, -1, 1], [ 1, -1, 1], [ 1, 1, 1], [-1, 1, 1],
+ // Back face
+ [-1, -1, -1], [ 1, -1, -1], [ 1, 1, -1], [-1, 1, -1]
+];
+
+// Define cube edges (vertex indices)
+const cubeEdges = [
+ // Front face
+ [0, 1], [1, 2], [2, 3], [3, 0],
+ // Back face
+ [4, 5], [5, 6], [6, 7], [7, 4],
+ // Connecting edges
+ [0, 4], [1, 5], [2, 6], [3, 7]
+];
+
+// Animation state
+let animationId = null;
+let isAnimating = false;
+
+function createWireframeBox(time = 0) {
+ const container = document.getElementById('svg-container');
+ const width = window.innerWidth;
+ const height = window.innerHeight;
+ 
+ // Clear previous content
+ container.innerHTML = '';
+ 
+ // Create SVG element
+ const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+ svg.setAttribute('width', width);
+ svg.setAttribute('height', height);
+ svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+ svg.style.display = 'block';
+ svg.style.background = '#000';
+ 
+ // Create transformation matrix
+ const rotX = rotationX(time * 0.001);
+ const rotY = rotationY(time * 0.0013);
+ const rotZ = rotationZ(time * 0.0007);
+ 
+ // Combine rotations
+ let transform = multiply4x4(rotX, rotY);
+ transform = multiply4x4(transform, rotZ);
+ 
+ // Add perspective
+ const proj = perspective(Math.PI / 4, width / height, 0.1, 100);
+ 
+ // Move cube back for perspective
+ const translation = [
+ 1, 0, 0, 0,
+ 0, 1, 0, 0,
+ 0, 0, 1, -5,
+ 0, 0, 0, 1
+ ];
+ 
+ transform = multiply4x4(translation, transform);
+ const finalTransform = multiply4x4(proj, transform);
+ 
+ // Transform vertices
+ const transformedVertices = cubeVertices.map(vertex =&gt; {
+ const transformed = transformPoint(finalTransform, vertex[0], vertex[1], vertex[2]);
+ return normToSvg(transformed.x, transformed.y, width, height);
+ });
+ 
+ // Draw edges
+ cubeEdges.forEach((edge, index) =&gt; {
+ const start = transformedVertices[edge[0]];
+ const end = transformedVertices[edge[1]];
+ 
+ // Skip if behind camera (simple culling)
+ if (!start || !end) return;
+ 
+ const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+ line.setAttribute('x1', start.x);
+ line.setAttribute('y1', start.y);
+ line.setAttribute('x2', end.x);
+ line.setAttribute('y2', end.y);
+ line.setAttribute('stroke', `hsl(${(index * 30 + time * 0.01) % 360}, 70%, 60%)`);
+ line.setAttribute('stroke-width', 2);
+ line.setAttribute('opacity', 0.8);
+ 
+ svg.appendChild(line);
+ });
+ 
+ // Draw vertices
+ transformedVertices.forEach((vertex, index) =&gt; {
+ if (!vertex) return;
+ 
+ const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+ circle.setAttribute('cx', vertex.x);
+ circle.setAttribute('cy', vertex.y);
+ circle.setAttribute('r', 4);
+ circle.setAttribute('fill', `hsl(${(index * 45 + time * 0.02) % 360}, 80%, 70%)`);
+ circle.setAttribute('opacity', 0.9);
+ 
+ svg.appendChild(circle);
+ });
+ 
+ container.appendChild(svg);
+}
+
+function createMultipleBoxes(time = 0) {
+ const container = document.getElementById('svg-container');
+ const width = window.innerWidth;
+ const height = window.innerHeight;
+ 
+ container.innerHTML = '';
+ 
+ const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+ svg.setAttribute('width', width);
+ svg.setAttribute('height', height);
+ svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+ svg.style.display = 'block';
+ svg.style.background = '#000';
+ 
+ // Create multiple boxes
+ const numBoxes = 5;
+ for (let boxIndex = 0; boxIndex &lt; numBoxes; boxIndex++) {
+ const scale = 0.3 + (boxIndex * 0.15);
+ const offsetX = Math.sin(time * 0.0005 + boxIndex) * 2;
+ const offsetY = Math.cos(time * 0.0007 + boxIndex) * 1.5;
+ const offsetZ = -3 - boxIndex * 2;
+ 
+ // Create transformation matrix for this box
+ const rotX = rotationX(time * 0.001 + boxIndex);
+ const rotY = rotationY(time * 0.0013 + boxIndex * 0.5);
+ const rotZ = rotationZ(time * 0.0007 + boxIndex * 0.3);
+ 
+ let transform = multiply4x4(rotX, rotY);
+ transform = multiply4x4(transform, rotZ);
+ 
+ // Scale and translate
+ const scaleMatrix = [
+ scale, 0, 0, offsetX,
+ 0, scale, 0, offsetY,
+ 0, 0, scale, offsetZ,
+ 0, 0, 0, 1
+ ];
+ 
+ transform = multiply4x4(scaleMatrix, transform);
+ 
+ // Add perspective
+ const proj = perspective(Math.PI / 4, width / height, 0.1, 100);
+ const finalTransform = multiply4x4(proj, transform);
+ 
+ // Transform vertices
+ const transformedVertices = cubeVertices.map(vertex =&gt; {
+ const transformed = transformPoint(finalTransform, vertex[0], vertex[1], vertex[2]);
+ return normToSvg(transformed.x, transformed.y, width, height);
+ });
+ 
+ // Draw edges
+ cubeEdges.forEach((edge, edgeIndex) =&gt; {
+ const start = transformedVertices[edge[0]];
+ const end = transformedVertices[edge[1]];
+ 
+ if (!start || !end) return;
+ 
+ const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+ line.setAttribute('x1', start.x);
+ line.setAttribute('y1', start.y);
+ line.setAttribute('x2', end.x);
+ line.setAttribute('y2', end.y);
+ line.setAttribute('stroke', `hsl(${(boxIndex * 60 + edgeIndex * 10 + time * 0.01) % 360}, 70%, 60%)`);
+ line.setAttribute('stroke-width', 1.5);
+ line.setAttribute('opacity', 0.7 - (boxIndex * 0.1));
+ 
+ svg.appendChild(line);
+ });
+ 
+ // Draw vertices
+ transformedVertices.forEach((vertex, vertexIndex) =&gt; {
+ if (!vertex) return;
+ 
+ const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+ circle.setAttribute('cx', vertex.x);
+ circle.setAttribute('cy', vertex.y);
+ circle.setAttribute('r', 2 + scale);
+ circle.setAttribute('fill', `hsl(${(boxIndex * 72 + vertexIndex * 20 + time * 0.02) % 360}, 80%, 70%)`);
+ circle.setAttribute('opacity', 0.8 - (boxIndex * 0.1));
+ 
+ svg.appendChild(circle);
+ });
+ }
+ 
+ container.appendChild(svg);
+}
+
+function createTunnelEffect(time = 0) {
+ const container = document.getElementById('svg-container');
+ const width = window.innerWidth;
+ const height = window.innerHeight;
+ 
+ container.innerHTML = '';
+ 
+ const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+ svg.setAttribute('width', width);
+ svg.setAttribute('height', height);
+ svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+ svg.style.display = 'block';
+ svg.style.background = '#000';
+ 
+ // Create tunnel of boxes
+ const numBoxes = 20;
+ for (let i = 0; i &lt; numBoxes; i++) {
+ const z = -i * 3 - (time * 0.005) % 3;
+ if (z &gt; 5) continue; // Don't draw boxes that are too close
+ 
+ const scale = Math.max(0.1, 1 / (Math.abs(z) + 1));
+ const rotation = time * 0.001 + i * 0.2;
+ 
+ // Create transformation matrix
+ const rotZ = rotationZ(rotation);
+ 
+ const translation = [
+ scale, 0, 0, 0,
+ 0, scale, 0, 0,
+ 0, 0, scale, z,
+ 0, 0, 0, 1
+ ];
+ 
+ const transform = multiply4x4(translation, rotZ);
+ const proj = perspective(Math.PI / 3, width / height, 0.1, 100);
+ const finalTransform = multiply4x4(proj, transform);
+ 
+ // Transform vertices
+ const transformedVertices = cubeVertices.map(vertex =&gt; {
+ const transformed = transformPoint(finalTransform, vertex[0], vertex[1], vertex[2]);
+ return normToSvg(transformed.x, transformed.y, width, height);
+ });
+ 
+ // Draw edges
+ cubeEdges.forEach((edge, edgeIndex) =&gt; {
+ const start = transformedVertices[edge[0]];
+ const end = transformedVertices[edge[1]];
+ 
+ if (!start || !end) return;
+ 
+ const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+ line.setAttribute('x1', start.x);
+ line.setAttribute('y1', start.y);
+ line.setAttribute('x2', end.x);
+ line.setAttribute('y2', end.y);
+ line.setAttribute('stroke', `hsl(${(i * 20 + time * 0.05) % 360}, 70%, ${70 - i * 2}%)`);
+ line.setAttribute('stroke-width', Math.max(0.5, scale * 2));
+ line.setAttribute('opacity', Math.max(0.1, scale));
+ 
+ svg.appendChild(line);
+ });
+ }
+ 
+ container.appendChild(svg);
+}
+
+// Animation functions
+function animateSingleBox() {
+ if (!isAnimating) return;
+ const time = Date.now();
+ createWireframeBox(time);
+ animationId = requestAnimationFrame(animateSingleBox);
+}
+
+function animateMultipleBoxes() {
+ if (!isAnimating) return;
+ const time = Date.now();
+ createMultipleBoxes(time);
+ animationId = requestAnimationFrame(animateMultipleBoxes);
+}
+
+function animateTunnel() {
+ if (!isAnimating) return;
+ const time = Date.now();
+ createTunnelEffect(time);
+ animationId = requestAnimationFrame(animateTunnel);
+}
+
+function startAnimation(type) {
+ stopAnimation();
+ isAnimating = true;
+ 
+ switch(type) {
+ case 'single':
+ animateSingleBox();
+ break;
+ case 'multiple':
+ animateMultipleBoxes();
+ break;
+ case 'tunnel':
+ animateTunnel();
+ break;
+ }
+}
+
+function stopAnimation() {
+ isAnimating = false;
+ if (animationId) {
+ cancelAnimationFrame(animationId);
+ animationId = null;
+ }
+}
+
+// Initialize
+createWireframeBox(0);
+
+// Handle window resize
+window.addEventListener('resize', () =&gt; {
+ if (!isAnimating) {
+ createWireframeBox(0);
+ }
+});
+&lt;/script&gt;
+&lt;h2 id="technical-features"&gt;Technical Features&lt;/h2&gt;
+&lt;h3 id="3d-mathematics"&gt;3D Mathematics&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Matrix transformations&lt;/strong&gt;: Full 4x4 matrix operations for 3D transformations&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Perspective projection&lt;/strong&gt;: Realistic 3D-to-2D conversion with depth&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Rotation matrices&lt;/strong&gt;: Separate X, Y, Z rotation calculations&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Vertex transformation&lt;/strong&gt;: Homogeneous coordinate system&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="wireframe-rendering"&gt;Wireframe Rendering&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Cube definition&lt;/strong&gt;: 8 vertices, 12 edges in normalized space&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Edge rendering&lt;/strong&gt;: Dynamic line drawing with SVG&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Vertex highlighting&lt;/strong&gt;: Color-coded corner points&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Depth sorting&lt;/strong&gt;: Simple back-face culling&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="animation-types"&gt;Animation Types&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Single Box&lt;/strong&gt;: Classic rotating wireframe cube&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Multiple Boxes&lt;/strong&gt;: Several cubes with different scales and positions&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Tunnel Effect&lt;/strong&gt;: Infinite tunnel of rotating wireframes&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="coordinate-system"&gt;Coordinate System&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 3D cube vertices in normalized coordinates (-1 to 1)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;cubeVertices&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; [
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; [&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], [ &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], [ &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], [&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], &lt;span style="color:#75715e"&gt;// Front
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; [&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], [ &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], [ &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], [&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;] &lt;span style="color:#75715e"&gt;// Back
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;];
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Transform to screen space
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;transformPoint&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;z&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;w&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;12&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;13&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;14&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;z&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;15&lt;/span&gt;];
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;z&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;3&lt;/span&gt;]) &lt;span style="color:#f92672"&gt;/&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;w&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;4&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;5&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;6&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;z&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;7&lt;/span&gt;]) &lt;span style="color:#f92672"&gt;/&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;w&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; };
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="performance-optimizations"&gt;Performance Optimizations&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Efficient matrix math&lt;/strong&gt;: Minimal allocations in animation loop&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;SVG reuse&lt;/strong&gt;: Complete regeneration for smooth animation&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Culling&lt;/strong&gt;: Skip rendering of vertices/edges behind camera&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Color cycling&lt;/strong&gt;: HSL color space for smooth transitions&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This wireframe system demonstrates how to build a complete 3D rendering pipeline using just SVG and JavaScript, with normalized coordinates providing a clean mathematical foundation!&lt;/p&gt;</description></item><item><title>Distributed Monolith Pipeline Analysis: Improvements and Refinements</title><link>https://thetanil.github.io/posts/dist-mono-pipe-analysis/</link><pubDate>Tue, 07 Oct 2025 12:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/dist-mono-pipe-analysis/</guid><description>&lt;h2 id="executive-summary"&gt;Executive Summary&lt;/h2&gt;
 &lt;p&gt;This analysis examines the proposed distributed monolith pipeline architecture with 47 component repositories feeding into a central integration repository. After reviewing the current design and evaluating GitHub&amp;rsquo;s merge queue capabilities, several key improvements and refinements are identified to enhance velocity, reliability, and operational efficiency.&lt;/p&gt;
 &lt;h2 id="current-architecture-analysis"&gt;Current Architecture Analysis&lt;/h2&gt;
 &lt;h3 id="strengths"&gt;Strengths&lt;/h3&gt;
