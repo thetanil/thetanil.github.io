@@ -1,5 +1,26 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Graphics on Theta Nil's Site</title><link>https://thetanil.github.io/tags/graphics/</link><description>Recent content in Graphics on Theta Nil's Site</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Wed, 08 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://thetanil.github.io/tags/graphics/index.xml" rel="self" type="application/rss+xml"/><item><title>JavaScript Generated SVG with Normalized Coordinates</title><link>https://thetanil.github.io/posts/svg_002/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_002/</guid><description>&lt;h1 id="javascript-generated-svg-with-fragment-shader-like-coordinates"&gt;JavaScript Generated SVG with Fragment Shader-like Coordinates&lt;/h1&gt;
-&lt;p&gt;This post demonstrates how to generate SVG content with JavaScript using normalized coordinates (-1 to 1) similar to fragment shaders.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Graphics on Theta Nil's Site</title><link>https://thetanil.github.io/tags/graphics/</link><description>Recent content in Graphics on Theta Nil's Site</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Wed, 08 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://thetanil.github.io/tags/graphics/index.xml" rel="self" type="application/rss+xml"/><item><title>SVG Shape Example</title><link>https://thetanil.github.io/posts/svg_001/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_001/</guid><description>&lt;h1 id="svg-shape-display"&gt;SVG Shape Display&lt;/h1&gt;
+&lt;p&gt;Here&amp;rsquo;s an example of displaying SVG shapes directly in a Hugo markdown post.&lt;/p&gt;
+&lt;h2 id="inline-svg-example"&gt;Inline SVG Example&lt;/h2&gt;
+&lt;p&gt;You can embed SVG directly in your markdown:&lt;/p&gt;
+&lt;svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"&gt;
+ &lt;!-- Circle --&gt;
+ &lt;circle cx="50" cy="50" r="40" fill="blue" stroke="navy" stroke-width="2"/&gt;
+ &lt;!-- Rectangle --&gt;
+ &lt;rect x="100" y="20" width="60" height="40" fill="red" stroke="darkred" stroke-width="2"/&gt;
+ &lt;!-- Triangle (using polygon) --&gt;
+ &lt;polygon points="130,100 160,160 100,160" fill="green" stroke="darkgreen" stroke-width="2"/&gt;
+ &lt;!-- Line --&gt;
+ &lt;line x1="20" y1="120" x2="80" y2="180" stroke="purple" stroke-width="3"/&gt;
+ &lt;!-- Text --&gt;
+&lt;p&gt;&lt;text x="10" y="190" font-family="Arial" font-size="14" fill="black"&gt;SVG Shapes&lt;/text&gt;
+&lt;/svg&gt;&lt;/p&gt;
+&lt;h2 id="styled-svg-with-css"&gt;Styled SVG with CSS&lt;/h2&gt;
+&lt;p&gt;You can also style SVG elements with CSS:&lt;/p&gt;</description></item><item><title>SVG with Normalized Coordinates</title><link>https://thetanil.github.io/posts/svg_002/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_002/</guid><description>&lt;p&gt;This post demonstrates how to generate SVG content with JavaScript using normalized coordinates (-1 to 1) similar to fragment shaders.&lt;/p&gt;
+&lt;div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;"&gt;
+&lt;button onclick="startFragmentAnimation()" style="padding: 10px 15px; background: #8BC34A; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 150px;"&gt;🎬 Animate Fragment Shader&lt;/button&gt;
+&lt;button onclick="startCircleAnimation()" style="padding: 10px 15px; background: #03A9F4; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 150px;"&gt;🎬 Animate Circles&lt;/button&gt;
+&lt;button onclick="stopAnimation()" style="padding: 10px 15px; background: #F44336; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 120px;"&gt;⏹️ Stop Animation&lt;/button&gt;
+&lt;/div&gt;
 &lt;div id="svg-container" style="width: 100%; height: 100vh; margin: 0; padding: 0;"&gt;&lt;/div&gt;
 &lt;script&gt;
 // Fragment shader-like functions
@@ -212,39 +233,91 @@ function createMandelbrotPattern() {
  container.appendChild(svg);
 }
 
+// Animation state
+let animationId = null;
+let currentPattern = 'static';
+
 // Initialize with pattern
 createSVGPattern();
 
-// Animation loop
-function animate() {
+// Animation loops for different patterns
+function animateFragmentShader() {
+ if (currentPattern === 'fragment') {
  createSVGPattern();
- requestAnimationFrame(animate);
+ animationId = requestAnimationFrame(animateFragmentShader);
+ }
 }
 
-// Uncomment to enable animation (warning: may be CPU intensive)
-// animate();
+function animateCircles() {
+ if (currentPattern === 'circles') {
+ createHighResPattern();
+ animationId = requestAnimationFrame(animateCircles);
+ }
+}
+
+function stopAnimation() {
+ if (animationId) {
+ cancelAnimationFrame(animationId);
+ animationId = null;
+ }
+ currentPattern = 'static';
+}
+
+function startFragmentAnimation() {
+ stopAnimation();
+ currentPattern = 'fragment';
+ animateFragmentShader();
+}
+
+function startCircleAnimation() {
+ stopAnimation();
+ currentPattern = 'circles';
+ animateCircles();
+}
 
 // Handle window resize
 window.addEventListener('resize', () =&gt; {
+ if (currentPattern === 'static') {
  createSVGPattern();
+ }
+ // Animation will continue with the current pattern
 });
 &lt;/script&gt;
-&lt;h2 id="control-panel"&gt;Control Panel&lt;/h2&gt;
-&lt;p&gt;Try different patterns:&lt;/p&gt;</description></item><item><title>SVG Shape Example</title><link>https://thetanil.github.io/posts/svg_001/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_001/</guid><description>&lt;h1 id="svg-shape-display"&gt;SVG Shape Display&lt;/h1&gt;
-&lt;p&gt;Here&amp;rsquo;s an example of displaying SVG shapes directly in a Hugo markdown post.&lt;/p&gt;
-&lt;h2 id="inline-svg-example"&gt;Inline SVG Example&lt;/h2&gt;
-&lt;p&gt;You can embed SVG directly in your markdown:&lt;/p&gt;
-&lt;svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"&gt;
- &lt;!-- Circle --&gt;
- &lt;circle cx="50" cy="50" r="40" fill="blue" stroke="navy" stroke-width="2"/&gt;
- &lt;!-- Rectangle --&gt;
- &lt;rect x="100" y="20" width="60" height="40" fill="red" stroke="darkred" stroke-width="2"/&gt;
- &lt;!-- Triangle (using polygon) --&gt;
- &lt;polygon points="130,100 160,160 100,160" fill="green" stroke="darkgreen" stroke-width="2"/&gt;
- &lt;!-- Line --&gt;
- &lt;line x1="20" y1="120" x2="80" y2="180" stroke="purple" stroke-width="3"/&gt;
- &lt;!-- Text --&gt;
-&lt;p&gt;&lt;text x="10" y="190" font-family="Arial" font-size="14" fill="black"&gt;SVG Shapes&lt;/text&gt;
-&lt;/svg&gt;&lt;/p&gt;
-&lt;h2 id="styled-svg-with-css"&gt;Styled SVG with CSS&lt;/h2&gt;
-&lt;p&gt;You can also style SVG elements with CSS:&lt;/p&gt;</description></item></channel></rss>
+&lt;h2 id="key-concepts"&gt;Key Concepts&lt;/h2&gt;
+&lt;h3 id="normalized-coordinates"&gt;Normalized Coordinates&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Convert screen position to normalized coordinates (-1 to 1)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;nx&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;i&lt;/span&gt; &lt;span style="color:#f92672"&gt;/&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;resolution&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;ny&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;j&lt;/span&gt; &lt;span style="color:#f92672"&gt;/&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;resolution&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Convert normalized coordinates back to SVG coordinates
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;normToSvg&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;nx&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;ny&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;width&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;height&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;nx&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;width&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.5&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;ny&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;height&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.5&lt;/span&gt;; &lt;span style="color:#75715e"&gt;// Flip Y for SVG
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; { &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; };
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="fragment-shader-like-functions"&gt;Fragment Shader-like Functions&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fragmentShader&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;nx&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;ny&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;time&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dist&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;length&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;nx&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;ny&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;angle&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;atan2&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;ny&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;nx&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;rings&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sin&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;dist&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;10&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;time&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.5&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.5&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;spiral&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sin&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;angle&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;8&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dist&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;20&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;time&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;3&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.5&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.5&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; { &lt;span style="color:#a6e22e"&gt;r&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;rings&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;g&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;spiral&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;b&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.8&lt;/span&gt; };
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="performance-considerations"&gt;Performance Considerations&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Resolution&lt;/strong&gt;: Lower resolution = better performance&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Animation&lt;/strong&gt;: Use &lt;code&gt;requestAnimationFrame&lt;/code&gt; for smooth animation&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Batch Operations&lt;/strong&gt;: Create all elements before adding to DOM&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Consider Canvas&lt;/strong&gt;: For very high-resolution patterns, HTML5 Canvas might be more efficient&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="advanced-techniques"&gt;Advanced Techniques&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Use viewBox&lt;/strong&gt;: Define custom coordinate systems&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Float Precision&lt;/strong&gt;: JavaScript numbers are 64-bit floats, perfect for shader-like calculations&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Color Spaces&lt;/strong&gt;: Convert between HSL, RGB, and normalized color values&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Time-based Animation&lt;/strong&gt;: Use timestamps for consistent animation speed&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Interactive&lt;/strong&gt;: Add mouse/touch events for interactive experiences&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;This approach gives you the flexibility of fragment shaders with the scalability and styling capabilities of SVG!&lt;/p&gt;</description></item></channel></rss>
