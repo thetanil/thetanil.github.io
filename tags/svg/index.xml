@@ -1,4 +1,597 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Svg on Theta Nil's Site</title><link>https://thetanil.github.io/tags/svg/</link><description>Recent content in Svg on Theta Nil's Site</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Wed, 08 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://thetanil.github.io/tags/svg/index.xml" rel="self" type="application/rss+xml"/><item><title>Line Intersection Detection and Splitting</title><link>https://thetanil.github.io/posts/svg_004/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_004/</guid><description>&lt;p&gt;This post demonstrates efficient line intersection detection using SVG-optimized techniques, with automatic circle placement and visual line splitting effects.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Svg on Theta Nil's Site</title><link>https://thetanil.github.io/tags/svg/</link><description>Recent content in Svg on Theta Nil's Site</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Fri, 10 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://thetanil.github.io/tags/svg/index.xml" rel="self" type="application/rss+xml"/><item><title>Triangle-Circle Intersection Detection with Curved Motion</title><link>https://thetanil.github.io/posts/svg_005/</link><pubDate>Fri, 10 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_005/</guid><description>&lt;p&gt;This post demonstrates real-time intersection detection between a moving triangle and a moving circle, with automatic marking of intersection points as the shapes follow curved paths.&lt;/p&gt;
+&lt;h3 id="intersection-demos"&gt;Intersection Demos:&lt;/h3&gt;
+&lt;div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;"&gt;
+&lt;button onclick="startAnimation();" style="padding: 10px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 120px;"&gt;🎬 Start Animation&lt;/button&gt;
+&lt;button onclick="stopAnimation()" style="padding: 10px 15px; background: #F44336; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 120px;"&gt;⏹️ Stop Animation&lt;/button&gt;
+&lt;button onclick="togglePaths()" style="padding: 10px 15px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 120px;"&gt;👁️ Toggle Paths&lt;/button&gt;
+&lt;button onclick="clearIntersections()" style="padding: 10px 15px; background: #FF9800; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 120px;"&gt;🧹 Clear Points&lt;/button&gt;
+&lt;/div&gt;
+&lt;div style="margin: 10px 0;"&gt;
+&lt;label style="color: white; margin-right: 10px;"&gt;Speed:&lt;/label&gt;
+&lt;input type="range" id="speedSlider" min="0.5" max="3" step="0.1" value="1" style="margin-right: 10px;" onchange="updateSpeed(this.value)"&gt;
+&lt;span id="speedValue" style="color: white;"&gt;1.0x&lt;/span&gt;
+&lt;/div&gt;
+&lt;div id="svg-container" style="width: 100%; height: 100vh; margin: 0; padding: 0; background: #111;"&gt;&lt;/div&gt;
+&lt;script&gt;
+// Animation state
+let animationId = null;
+let isAnimating = false;
+let animationSpeed = 1.0;
+let startTime = 0;
+let showPaths = true;
+
+// Shape parameters
+const triangleSize = 80;
+const circleRadius = 50;
+let svg = null;
+let triangle = null;
+let circle = null;
+let intersectionPoints = [];
+let persistentIntersections = [];
+
+function initializeSVG() {
+ const container = document.getElementById('svg-container');
+ const width = window.innerWidth;
+ const height = window.innerHeight;
+ 
+ container.innerHTML = '';
+ 
+ svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+ svg.setAttribute('width', width);
+ svg.setAttribute('height', height);
+ svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+ svg.style.display = 'block';
+ svg.style.background = '#111';
+ 
+ // Create gradient definitions
+ const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+ 
+ // Triangle gradient
+ const triangleGradient = document.createElementNS('http://www.w3.org/2000/svg', 'radialGradient');
+ triangleGradient.setAttribute('id', 'triangleGradient');
+ triangleGradient.setAttribute('cx', '50%');
+ triangleGradient.setAttribute('cy', '50%');
+ 
+ const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+ stop1.setAttribute('offset', '0%');
+ stop1.setAttribute('stop-color', '#ff6b6b');
+ stop1.setAttribute('stop-opacity', '0.8');
+ 
+ const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+ stop2.setAttribute('offset', '100%');
+ stop2.setAttribute('stop-color', '#ff3333');
+ stop2.setAttribute('stop-opacity', '0.6');
+ 
+ triangleGradient.appendChild(stop1);
+ triangleGradient.appendChild(stop2);
+ defs.appendChild(triangleGradient);
+ 
+ // Circle gradient
+ const circleGradient = document.createElementNS('http://www.w3.org/2000/svg', 'radialGradient');
+ circleGradient.setAttribute('id', 'circleGradient');
+ circleGradient.setAttribute('cx', '50%');
+ circleGradient.setAttribute('cy', '50%');
+ 
+ const circleStop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+ circleStop1.setAttribute('offset', '0%');
+ circleStop1.setAttribute('stop-color', '#4ecdc4');
+ circleStop1.setAttribute('stop-opacity', '0.8');
+ 
+ const circleStop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+ circleStop2.setAttribute('offset', '100%');
+ circleStop2.setAttribute('stop-color', '#45b7d1');
+ circleStop2.setAttribute('stop-opacity', '0.6');
+ 
+ circleGradient.appendChild(circleStop1);
+ circleGradient.appendChild(circleStop2);
+ defs.appendChild(circleGradient);
+ 
+ svg.appendChild(defs);
+ 
+ // Create background grid
+ createGrid();
+ 
+ // Create path guides (optional visibility)
+ createPathGuides(width, height);
+ 
+ // Create triangle
+ triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+ triangle.setAttribute('fill', 'url(#triangleGradient)');
+ triangle.setAttribute('stroke', '#fff');
+ triangle.setAttribute('stroke-width', '2');
+ triangle.setAttribute('opacity', '0.9');
+ svg.appendChild(triangle);
+ 
+ // Create circle
+ circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+ circle.setAttribute('fill', 'url(#circleGradient)');
+ circle.setAttribute('stroke', '#fff');
+ circle.setAttribute('stroke-width', '2');
+ circle.setAttribute('opacity', '0.9');
+ circle.setAttribute('r', circleRadius);
+ svg.appendChild(circle);
+ 
+ container.appendChild(svg);
+ 
+ return { width, height };
+}
+
+function createGrid() {
+ const width = window.innerWidth;
+ const height = window.innerHeight;
+ const gridSize = 50;
+ 
+ const gridGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+ gridGroup.setAttribute('opacity', '0.1');
+ gridGroup.setAttribute('id', 'grid');
+ 
+ // Vertical lines
+ for (let x = 0; x &lt;= width; x += gridSize) {
+ const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+ line.setAttribute('x1', x);
+ line.setAttribute('y1', 0);
+ line.setAttribute('x2', x);
+ line.setAttribute('y2', height);
+ line.setAttribute('stroke', '#fff');
+ line.setAttribute('stroke-width', '1');
+ gridGroup.appendChild(line);
+ }
+ 
+ // Horizontal lines
+ for (let y = 0; y &lt;= height; y += gridSize) {
+ const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+ line.setAttribute('x1', 0);
+ line.setAttribute('y1', y);
+ line.setAttribute('x2', width);
+ line.setAttribute('y2', y);
+ line.setAttribute('stroke', '#fff');
+ line.setAttribute('stroke-width', '1');
+ gridGroup.appendChild(line);
+ }
+ 
+ svg.appendChild(gridGroup);
+}
+
+function createPathGuides(width, height) {
+ const pathGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+ pathGroup.setAttribute('id', 'pathGuides');
+ pathGroup.setAttribute('opacity', showPaths ? '0.3' : '0');
+ 
+ // Triangle path (large circle)
+ const trianglePath = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+ trianglePath.setAttribute('cx', width / 2);
+ trianglePath.setAttribute('cy', height / 2);
+ trianglePath.setAttribute('r', 180);
+ trianglePath.setAttribute('fill', 'none');
+ trianglePath.setAttribute('stroke', '#ff6b6b');
+ trianglePath.setAttribute('stroke-width', '2');
+ trianglePath.setAttribute('stroke-dasharray', '5,5');
+ pathGroup.appendChild(trianglePath);
+ 
+ // Circle path (smaller circle, intersecting)
+ const circlePath = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+ circlePath.setAttribute('cx', width / 2);
+ circlePath.setAttribute('cy', height / 2);
+ circlePath.setAttribute('r', 120);
+ circlePath.setAttribute('fill', 'none');
+ circlePath.setAttribute('stroke', '#4ecdc4');
+ circlePath.setAttribute('stroke-width', '2');
+ circlePath.setAttribute('stroke-dasharray', '5,5');
+ pathGroup.appendChild(circlePath);
+ 
+ svg.appendChild(pathGroup);
+}
+
+function getTrianglePoints(x, y, size, rotation = 0) {
+ const height = size * Math.sqrt(3) / 2;
+ const points = [
+ { x: 0, y: -height * 2/3 },
+ { x: -size/2, y: height * 1/3 },
+ { x: size/2, y: height * 1/3 }
+ ];
+ 
+ // Apply rotation
+ const cos = Math.cos(rotation);
+ const sin = Math.sin(rotation);
+ 
+ const rotatedPoints = points.map(point =&gt; {
+ const rotatedX = point.x * cos - point.y * sin;
+ const rotatedY = point.x * sin + point.y * cos;
+ return { x: x + rotatedX, y: y + rotatedY };
+ });
+ 
+ return {
+ points: rotatedPoints,
+ pointsString: rotatedPoints.map(p =&gt; `${p.x},${p.y}`).join(' ')
+ };
+}
+
+function calculateTrianglePosition(time) {
+ const width = window.innerWidth;
+ const height = window.innerHeight;
+ const centerX = width / 2;
+ const centerY = height / 2;
+ const a = 180;
+ 
+ // Large circular path for triangle (clockwise)
+ const x = centerX + Math.cos(time) * a;
+ const y = centerY + Math.sin(time) * a;
+ const rotation = time + Math.PI / 2; // Point in direction of movement
+ 
+ return { x, y, rotation };
+}
+
+function calculateCirclePosition(time) {
+ const width = window.innerWidth;
+ const height = window.innerHeight;
+ const centerX = width / 2;
+ const centerY = height / 2;
+ const radius = 120;
+ 
+ // Smaller circular path for circle (counter-clockwise, faster)
+ const x = centerX + Math.cos(-time * 1.5) * radius;
+ const y = centerY + Math.sin(-time * 1.5) * radius;
+ 
+ return { x, y };
+}
+
+// Triangle-Circle intersection detection
+function pointInTriangle(point, triangle) {
+ const [a, b, c] = triangle.points;
+ 
+ // Barycentric coordinate system
+ const v0x = c.x - a.x;
+ const v0y = c.y - a.y;
+ const v1x = b.x - a.x;
+ const v1y = b.y - a.y;
+ const v2x = point.x - a.x;
+ const v2y = point.y - a.y;
+ 
+ const dot00 = v0x * v0x + v0y * v0y;
+ const dot01 = v0x * v1x + v0y * v1y;
+ const dot02 = v0x * v2x + v0y * v2y;
+ const dot11 = v1x * v1x + v1y * v1y;
+ const dot12 = v1x * v2x + v1y * v2y;
+ 
+ const invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+ const u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+ const v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+ 
+ return (u &gt;= 0) &amp;&amp; (v &gt;= 0) &amp;&amp; (u + v &lt;= 1);
+}
+
+function lineCircleIntersection(lineStart, lineEnd, circleCenter, radius) {
+ const dx = lineEnd.x - lineStart.x;
+ const dy = lineEnd.y - lineStart.y;
+ const fx = lineStart.x - circleCenter.x;
+ const fy = lineStart.y - circleCenter.y;
+ 
+ const a = dx * dx + dy * dy;
+ const b = 2 * (fx * dx + fy * dy);
+ const c = (fx * fx + fy * fy) - radius * radius;
+ 
+ const discriminant = b * b - 4 * a * c;
+ 
+ if (discriminant &lt; 0) {
+ return [];
+ }
+ 
+ const discriminantSqrt = Math.sqrt(discriminant);
+ const t1 = (-b - discriminantSqrt) / (2 * a);
+ const t2 = (-b + discriminantSqrt) / (2 * a);
+ 
+ const intersections = [];
+ 
+ if (t1 &gt;= 0 &amp;&amp; t1 &lt;= 1) {
+ intersections.push({
+ x: lineStart.x + t1 * dx,
+ y: lineStart.y + t1 * dy
+ });
+ }
+ 
+ if (t2 &gt;= 0 &amp;&amp; t2 &lt;= 1 &amp;&amp; t2 !== t1) {
+ intersections.push({
+ x: lineStart.x + t2 * dx,
+ y: lineStart.y + t2 * dy
+ });
+ }
+ 
+ return intersections;
+}
+
+function findTriangleCircleIntersections(triangleData, circleCenter, radius) {
+ const intersections = [];
+ const triangle = triangleData.points;
+ 
+ // Check each edge of triangle against circle
+ for (let i = 0; i &lt; triangle.length; i++) {
+ const start = triangle[i];
+ const end = triangle[(i + 1) % triangle.length];
+ 
+ const edgeIntersections = lineCircleIntersection(start, end, circleCenter, radius);
+ intersections.push(...edgeIntersections);
+ }
+ 
+ // Check if circle center is inside triangle
+ if (pointInTriangle(circleCenter, triangleData)) {
+ intersections.push({
+ x: circleCenter.x,
+ y: circleCenter.y,
+ type: 'center-inside-triangle'
+ });
+ }
+ 
+ return intersections;
+}
+
+function animate() {
+ if (!isAnimating) return;
+ 
+ const currentTime = Date.now();
+ if (startTime === 0) startTime = currentTime;
+ 
+ const elapsedTime = (currentTime - startTime) * 0.001 * animationSpeed;
+ 
+ // Calculate positions
+ const trianglePos = calculateTrianglePosition(elapsedTime);
+ const circlePos = calculateCirclePosition(elapsedTime);
+ 
+ // Update triangle
+ const triangleData = getTrianglePoints(trianglePos.x, trianglePos.y, triangleSize, trianglePos.rotation);
+ triangle.setAttribute('points', triangleData.pointsString);
+ 
+ // Update circle
+ circle.setAttribute('cx', circlePos.x);
+ circle.setAttribute('cy', circlePos.y);
+ 
+ // Find intersections
+ const currentIntersections = findTriangleCircleIntersections(
+ triangleData, 
+ circlePos, 
+ circleRadius
+ );
+ 
+ // Add current intersections to persistent list (avoid duplicates)
+ currentIntersections.forEach(intersection =&gt; {
+ const isDuplicate = persistentIntersections.some(existing =&gt; 
+ Math.abs(existing.x - intersection.x) &lt; 5 &amp;&amp; 
+ Math.abs(existing.y - intersection.y) &lt; 5
+ );
+ 
+ if (!isDuplicate) {
+ persistentIntersections.push({
+ ...intersection,
+ timestamp: elapsedTime,
+ id: Date.now() + Math.random()
+ });
+ }
+ });
+ 
+ // Remove old intersections (older than 10 seconds)
+ persistentIntersections = persistentIntersections.filter(
+ intersection =&gt; elapsedTime - intersection.timestamp &lt; 10
+ );
+ 
+ // Update intersection display
+ updateIntersectionDisplay(currentIntersections);
+ updatePersistentIntersectionDisplay();
+ 
+ // Update info text
+ updateInfoText(trianglePos, circlePos, currentIntersections.length, persistentIntersections.length, elapsedTime);
+ 
+ animationId = requestAnimationFrame(animate);
+}
+
+function updateIntersectionDisplay(intersections) {
+ // Remove existing current intersection markers
+ const existingCurrent = svg.querySelectorAll('.current-intersection');
+ existingCurrent.forEach(marker =&gt; svg.removeChild(marker));
+ 
+ // Draw current intersections
+ intersections.forEach((intersection, index) =&gt; {
+ const marker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+ marker.setAttribute('cx', intersection.x);
+ marker.setAttribute('cy', intersection.y);
+ marker.setAttribute('r', '8');
+ marker.setAttribute('fill', '#ff9ff3');
+ marker.setAttribute('stroke', '#fff');
+ marker.setAttribute('stroke-width', '3');
+ marker.setAttribute('opacity', '0.9');
+ marker.setAttribute('class', 'current-intersection');
+ 
+ // Add pulsing animation
+ const animate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+ animate.setAttribute('attributeName', 'r');
+ animate.setAttribute('values', '8;12;8');
+ animate.setAttribute('dur', '1s');
+ animate.setAttribute('repeatCount', 'indefinite');
+ marker.appendChild(animate);
+ 
+ svg.appendChild(marker);
+ });
+}
+
+function updatePersistentIntersectionDisplay() {
+ // Remove existing persistent markers
+ const existingPersistent = svg.querySelectorAll('.persistent-intersection');
+ existingPersistent.forEach(marker =&gt; svg.removeChild(marker));
+ 
+ // Draw persistent intersections with fading opacity
+ persistentIntersections.forEach(intersection =&gt; {
+ const age = Date.now() * 0.001 - intersection.timestamp;
+ const opacity = Math.max(0.1, 1 - age / 10); // Fade over 10 seconds
+ 
+ const marker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+ marker.setAttribute('cx', intersection.x);
+ marker.setAttribute('cy', intersection.y);
+ marker.setAttribute('r', '4');
+ marker.setAttribute('fill', '#ffff00');
+ marker.setAttribute('stroke', '#fff');
+ marker.setAttribute('stroke-width', '1');
+ marker.setAttribute('opacity', opacity);
+ marker.setAttribute('class', 'persistent-intersection');
+ 
+ svg.appendChild(marker);
+ });
+}
+
+function updateInfoText(trianglePos, circlePos, currentCount, totalCount, time) {
+ // Remove existing info text
+ const existingInfo = svg.querySelector('#infoText');
+ if (existingInfo) {
+ svg.removeChild(existingInfo);
+ }
+ 
+ const infoGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+ infoGroup.setAttribute('id', 'infoText');
+ 
+ const texts = [
+ `Triangle: (${Math.round(trianglePos.x)}, ${Math.round(trianglePos.y)}) | Rotation: ${(trianglePos.rotation * 180 / Math.PI).toFixed(1)}°`,
+ `Circle: (${Math.round(circlePos.x)}, ${Math.round(circlePos.y)}) | Radius: ${circleRadius}px`,
+ `Current Intersections: ${currentCount} | Total Detected: ${totalCount}`,
+ `Speed: ${animationSpeed.toFixed(1)}x | Time: ${time.toFixed(1)}s`,
+ `🔴 Active intersections | 🟡 Recent intersections (fade over 10s)`
+ ];
+ 
+ texts.forEach((text, index) =&gt; {
+ const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+ textElement.setAttribute('x', '20');
+ textElement.setAttribute('y', 30 + index * 20);
+ textElement.setAttribute('fill', '#fff');
+ textElement.setAttribute('font-size', '14');
+ textElement.setAttribute('font-family', 'monospace');
+ textElement.textContent = text;
+ infoGroup.appendChild(textElement);
+ });
+ 
+ svg.appendChild(infoGroup);
+}
+
+function startAnimation() {
+ stopAnimation();
+ startTime = 0;
+ isAnimating = true;
+ persistentIntersections = [];
+ initializeSVG();
+ animate();
+}
+
+function stopAnimation() {
+ isAnimating = false;
+ if (animationId) {
+ cancelAnimationFrame(animationId);
+ animationId = null;
+ }
+}
+
+function togglePaths() {
+ showPaths = !showPaths;
+ const pathGuides = svg.querySelector('#pathGuides');
+ if (pathGuides) {
+ pathGuides.setAttribute('opacity', showPaths ? '0.3' : '0');
+ }
+}
+
+function clearIntersections() {
+ persistentIntersections = [];
+ updatePersistentIntersectionDisplay();
+}
+
+function updateSpeed(value) {
+ animationSpeed = parseFloat(value);
+ document.getElementById('speedValue').textContent = `${animationSpeed.toFixed(1)}x`;
+}
+
+// Initialize
+initializeSVG();
+
+// Handle window resize
+window.addEventListener('resize', () =&gt; {
+ if (isAnimating) {
+ stopAnimation();
+ setTimeout(() =&gt; {
+ startAnimation();
+ }, 100);
+ } else {
+ initializeSVG();
+ }
+});
+&lt;/script&gt;
+&lt;h2 id="triangle-circle-intersection-detection"&gt;Triangle-Circle Intersection Detection&lt;/h2&gt;
+&lt;h3 id="intersection-algorithm"&gt;&lt;strong&gt;Intersection Algorithm:&lt;/strong&gt;&lt;/h3&gt;
+&lt;h4 id="1-line-circle-intersection"&gt;1. &lt;strong&gt;Line-Circle Intersection&lt;/strong&gt;&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineCircleIntersection&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;lineStart&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;lineEnd&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;circleCenter&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;radius&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Convert to quadratic equation: at² + bt + c = 0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dx&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineEnd&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineStart&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;x&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dy&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineEnd&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineStart&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;y&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fx&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineStart&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;circleCenter&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;x&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fy&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineStart&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;circleCenter&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;y&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;a&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dx&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dx&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dy&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dy&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;b&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;fx&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dx&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fy&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dy&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;c&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;fx&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fx&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fy&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fy&lt;/span&gt;) &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;radius&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;radius&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;discriminant&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;b&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;b&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;a&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;c&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Returns intersection points on triangle edges
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id="2-point-in-triangle-test"&gt;2. &lt;strong&gt;Point-in-Triangle Test&lt;/strong&gt;&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;pointInTriangle&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;point&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;triangle&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Barycentric coordinate system
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#75715e"&gt;// Tests if circle center is inside triangle
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;u&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;dot11&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dot02&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dot01&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dot12&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;invDenom&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;v&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;dot00&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dot12&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dot01&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dot02&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;invDenom&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;u&lt;/span&gt; &lt;span style="color:#f92672"&gt;&amp;gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;) &lt;span style="color:#f92672"&gt;&amp;amp;&amp;amp;&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;v&lt;/span&gt; &lt;span style="color:#f92672"&gt;&amp;gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;) &lt;span style="color:#f92672"&gt;&amp;amp;&amp;amp;&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;u&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;v&lt;/span&gt; &lt;span style="color:#f92672"&gt;&amp;lt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="motion-paths"&gt;&lt;strong&gt;Motion Paths:&lt;/strong&gt;&lt;/h3&gt;
+&lt;h4 id="triangle-path-large-circle---clockwise"&gt;&lt;strong&gt;Triangle Path (Large Circle - Clockwise)&lt;/strong&gt;&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Large circular orbit - triangle moves clockwise
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;centerX&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;cos&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;time&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;180&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;centerY&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;sin&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;time&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;180&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;rotation&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;time&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;PI&lt;/span&gt; &lt;span style="color:#f92672"&gt;/&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;; &lt;span style="color:#75715e"&gt;// Points in movement direction
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id="circle-path-small-circle---counter-clockwise"&gt;&lt;strong&gt;Circle Path (Small Circle - Counter-clockwise)&lt;/strong&gt;&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Smaller, faster circular orbit - circle moves counter-clockwise
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;centerX&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;cos&lt;/span&gt;(&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;time&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1.5&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;120&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;centerY&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;sin&lt;/span&gt;(&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;time&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1.5&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;120&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Opposite direction and 1.5x speed creates regular intersections
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="intersection-visualization"&gt;&lt;strong&gt;Intersection Visualization:&lt;/strong&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;🔴 Active Intersections&lt;/strong&gt;: Real-time intersection points (pulsing red circles)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;🟡 Persistent Markers&lt;/strong&gt;: Historical intersection points that fade over 10 seconds&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Path Guides&lt;/strong&gt;: Dashed lines showing the movement paths (toggleable)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Live Statistics&lt;/strong&gt;: Current and total intersection counts&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="detection-features"&gt;&lt;strong&gt;Detection Features:&lt;/strong&gt;&lt;/h3&gt;
+&lt;h4 id="real-time-processing"&gt;&lt;strong&gt;Real-time Processing&lt;/strong&gt;&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Detects intersections between triangle edges and circle perimeter&lt;/li&gt;
+&lt;li&gt;Handles special case when circle center is inside triangle&lt;/li&gt;
+&lt;li&gt;Avoids duplicate detection with proximity checking&lt;/li&gt;
+&lt;li&gt;Maintains persistent history with automatic cleanup&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id="visual-feedback"&gt;&lt;strong&gt;Visual Feedback&lt;/strong&gt;&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Current intersections: pulsing animation
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;animate&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; document.&lt;span style="color:#a6e22e"&gt;createElementNS&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;http://www.w3.org/2000/svg&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;animate&amp;#39;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;animate&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;setAttribute&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;attributeName&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;r&amp;#39;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;animate&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;setAttribute&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;values&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;8;12;8&amp;#39;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Persistent intersections: fade over time
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;opacity&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;max&lt;/span&gt;(&lt;span style="color:#ae81ff"&gt;0.1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;age&lt;/span&gt; &lt;span style="color:#f92672"&gt;/&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;10&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="interactive-controls"&gt;&lt;strong&gt;Interactive Controls:&lt;/strong&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Start/Stop Animation&lt;/strong&gt;: Control the intersection detection process&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Toggle Paths&lt;/strong&gt;: Show/hide the curved path guides&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Clear Points&lt;/strong&gt;: Remove all persistent intersection markers&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Speed Control&lt;/strong&gt;: Adjust animation speed from 0.5x to 3x&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="mathematical-precision"&gt;&lt;strong&gt;Mathematical Precision:&lt;/strong&gt;&lt;/h3&gt;
+&lt;h4 id="geometric-algorithms"&gt;&lt;strong&gt;Geometric Algorithms&lt;/strong&gt;&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Quadratic Formula&lt;/strong&gt;: Precise line-circle intersection calculation&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Barycentric Coordinates&lt;/strong&gt;: Accurate point-in-triangle testing&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Parametric Curves&lt;/strong&gt;: Smooth mathematical motion paths&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Temporal Tracking&lt;/strong&gt;: Time-based intersection history&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This demonstrates advanced geometric intersection detection with real-time visualization, combining mathematical precision with interactive feedback systems!&lt;/p&gt;</description></item><item><title>Line Intersection Detection and Splitting</title><link>https://thetanil.github.io/posts/svg_004/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_004/</guid><description>&lt;p&gt;This post demonstrates efficient line intersection detection using SVG-optimized techniques, with automatic circle placement and visual line splitting effects.&lt;/p&gt;
 &lt;h3 id="intersection-demos"&gt;Intersection Demos:&lt;/h3&gt;
 &lt;div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;"&gt;
 &lt;button onclick="stopAnimation(); createStaticIntersectionDemo();" style="padding: 10px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 120px;"&gt;Static Intersections&lt;/button&gt;
