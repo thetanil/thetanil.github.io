@@ -13,6 +13,4 @@
  &lt;line x1="20" y1="120" x2="80" y2="180" stroke="purple" stroke-width="3"/&gt;
  &lt;!-- Text --&gt;
 &lt;p&gt;&lt;text x="10" y="190" font-family="Arial" font-size="14" fill="black"&gt;SVG Shapes&lt;/text&gt;
-&lt;/svg&gt;&lt;/p&gt;
-&lt;h2 id="styled-svg-with-css"&gt;Styled SVG with CSS&lt;/h2&gt;
-&lt;p&gt;You can also style SVG elements with CSS:&lt;/p&gt;</description></item></channel></rss>
+&lt;/svg&gt;&lt;/p&gt;</description></item></channel></rss>

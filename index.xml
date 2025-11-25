@@ -533,82 +533,7 @@ window.addEventListener('resize', () =&gt; {
  initializeSVG();
  }
 });
-&lt;/script&gt;
-&lt;h2 id="triangle-circle-intersection-detection"&gt;Triangle-Circle Intersection Detection&lt;/h2&gt;
-&lt;h3 id="intersection-algorithm"&gt;&lt;strong&gt;Intersection Algorithm:&lt;/strong&gt;&lt;/h3&gt;
-&lt;h4 id="1-line-circle-intersection"&gt;1. &lt;strong&gt;Line-Circle Intersection&lt;/strong&gt;&lt;/h4&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineCircleIntersection&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;lineStart&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;lineEnd&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;circleCenter&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;radius&lt;/span&gt;) {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Convert to quadratic equation: at² + bt + c = 0
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dx&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineEnd&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineStart&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;x&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dy&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineEnd&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineStart&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;y&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fx&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineStart&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;circleCenter&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;x&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fy&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineStart&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;circleCenter&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;y&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;a&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dx&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dx&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dy&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dy&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;b&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;fx&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dx&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fy&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dy&lt;/span&gt;);
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;c&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;fx&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fx&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fy&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fy&lt;/span&gt;) &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;radius&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;radius&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;discriminant&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;b&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;b&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;a&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;c&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Returns intersection points on triangle edges
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id="2-point-in-triangle-test"&gt;2. &lt;strong&gt;Point-in-Triangle Test&lt;/strong&gt;&lt;/h4&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;pointInTriangle&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;point&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;triangle&lt;/span&gt;) {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Barycentric coordinate system
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#75715e"&gt;// Tests if circle center is inside triangle
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;u&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;dot11&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dot02&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dot01&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dot12&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;invDenom&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;v&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;dot00&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dot12&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dot01&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dot02&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;invDenom&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;u&lt;/span&gt; &lt;span style="color:#f92672"&gt;&amp;gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;) &lt;span style="color:#f92672"&gt;&amp;amp;&amp;amp;&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;v&lt;/span&gt; &lt;span style="color:#f92672"&gt;&amp;gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;) &lt;span style="color:#f92672"&gt;&amp;amp;&amp;amp;&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;u&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;v&lt;/span&gt; &lt;span style="color:#f92672"&gt;&amp;lt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;);
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="motion-paths"&gt;&lt;strong&gt;Motion Paths:&lt;/strong&gt;&lt;/h3&gt;
-&lt;h4 id="triangle-path-large-circle---clockwise"&gt;&lt;strong&gt;Triangle Path (Large Circle - Clockwise)&lt;/strong&gt;&lt;/h4&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Large circular orbit - triangle moves clockwise
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;centerX&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;cos&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;time&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;180&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;centerY&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;sin&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;time&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;180&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;rotation&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;time&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;PI&lt;/span&gt; &lt;span style="color:#f92672"&gt;/&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;; &lt;span style="color:#75715e"&gt;// Points in movement direction
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id="circle-path-small-circle---counter-clockwise"&gt;&lt;strong&gt;Circle Path (Small Circle - Counter-clockwise)&lt;/strong&gt;&lt;/h4&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Smaller, faster circular orbit - circle moves counter-clockwise
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;centerX&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;cos&lt;/span&gt;(&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;time&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1.5&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;120&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;centerY&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;sin&lt;/span&gt;(&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;time&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1.5&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;120&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Opposite direction and 1.5x speed creates regular intersections
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="intersection-visualization"&gt;&lt;strong&gt;Intersection Visualization:&lt;/strong&gt;&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;🔴 Active Intersections&lt;/strong&gt;: Real-time intersection points (pulsing red circles)&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;🟡 Persistent Markers&lt;/strong&gt;: Historical intersection points that fade over 10 seconds&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Path Guides&lt;/strong&gt;: Dashed lines showing the movement paths (toggleable)&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Live Statistics&lt;/strong&gt;: Current and total intersection counts&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id="detection-features"&gt;&lt;strong&gt;Detection Features:&lt;/strong&gt;&lt;/h3&gt;
-&lt;h4 id="real-time-processing"&gt;&lt;strong&gt;Real-time Processing&lt;/strong&gt;&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;Detects intersections between triangle edges and circle perimeter&lt;/li&gt;
-&lt;li&gt;Handles special case when circle center is inside triangle&lt;/li&gt;
-&lt;li&gt;Avoids duplicate detection with proximity checking&lt;/li&gt;
-&lt;li&gt;Maintains persistent history with automatic cleanup&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id="visual-feedback"&gt;&lt;strong&gt;Visual Feedback&lt;/strong&gt;&lt;/h4&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Current intersections: pulsing animation
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;animate&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; document.&lt;span style="color:#a6e22e"&gt;createElementNS&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;http://www.w3.org/2000/svg&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;animate&amp;#39;&lt;/span&gt;);
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;animate&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;setAttribute&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;attributeName&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;r&amp;#39;&lt;/span&gt;);
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;animate&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;setAttribute&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;values&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;8;12;8&amp;#39;&lt;/span&gt;);
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Persistent intersections: fade over time
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;opacity&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;max&lt;/span&gt;(&lt;span style="color:#ae81ff"&gt;0.1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;age&lt;/span&gt; &lt;span style="color:#f92672"&gt;/&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;10&lt;/span&gt;);
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="interactive-controls"&gt;&lt;strong&gt;Interactive Controls:&lt;/strong&gt;&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Start/Stop Animation&lt;/strong&gt;: Control the intersection detection process&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Toggle Paths&lt;/strong&gt;: Show/hide the curved path guides&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Clear Points&lt;/strong&gt;: Remove all persistent intersection markers&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Speed Control&lt;/strong&gt;: Adjust animation speed from 0.5x to 3x&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id="mathematical-precision"&gt;&lt;strong&gt;Mathematical Precision:&lt;/strong&gt;&lt;/h3&gt;
-&lt;h4 id="geometric-algorithms"&gt;&lt;strong&gt;Geometric Algorithms&lt;/strong&gt;&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Quadratic Formula&lt;/strong&gt;: Precise line-circle intersection calculation&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Barycentric Coordinates&lt;/strong&gt;: Accurate point-in-triangle testing&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Parametric Curves&lt;/strong&gt;: Smooth mathematical motion paths&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Temporal Tracking&lt;/strong&gt;: Time-based intersection history&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;This demonstrates advanced geometric intersection detection with real-time visualization, combining mathematical precision with interactive feedback systems!&lt;/p&gt;</description></item><item><title>Line Intersection Detection and Splitting</title><link>https://thetanil.github.io/posts/svg_004/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_004/</guid><description>&lt;p&gt;This post demonstrates efficient line intersection detection using SVG-optimized techniques, with automatic circle placement and visual line splitting effects.&lt;/p&gt;
+&lt;/script&gt;</description></item><item><title>Line Intersection Detection and Splitting</title><link>https://thetanil.github.io/posts/svg_004/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_004/</guid><description>&lt;p&gt;This post demonstrates efficient line intersection detection using SVG-optimized techniques, with automatic circle placement and visual line splitting effects.&lt;/p&gt;
 &lt;h3 id="intersection-demos"&gt;Intersection Demos:&lt;/h3&gt;
 &lt;div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;"&gt;
 &lt;button onclick="stopAnimation(); createStaticIntersectionDemo();" style="padding: 10px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 120px;"&gt;Static Intersections&lt;/button&gt;
@@ -1146,72 +1071,7 @@ window.addEventListener('resize', () =&gt; {
  createStaticIntersectionDemo();
  }
 });
-&lt;/script&gt;
-&lt;h2 id="svg-optimization-techniques"&gt;SVG Optimization Techniques&lt;/h2&gt;
-&lt;h3 id="1-bounding-box-pre-filtering"&gt;1. &lt;strong&gt;Bounding Box Pre-filtering&lt;/strong&gt;&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;bboxIntersect&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;bbox1&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;bbox2&lt;/span&gt;) {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#f92672"&gt;!&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;bbox1&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;bbox1&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;width&lt;/span&gt; &lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;bbox2&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;||&lt;/span&gt; 
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;bbox2&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;bbox2&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;width&lt;/span&gt; &lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;bbox1&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;||&lt;/span&gt; 
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;bbox1&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;bbox1&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;height&lt;/span&gt; &lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;bbox2&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;||&lt;/span&gt; 
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;bbox2&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;bbox2&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;height&lt;/span&gt; &lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;bbox1&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;y&lt;/span&gt;);
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Quick elimination before expensive intersection math
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;bboxIntersect&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;line1&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getBBox&lt;/span&gt;(), &lt;span style="color:#a6e22e"&gt;line2&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getBBox&lt;/span&gt;())) {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Only then do precise intersection calculation
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="2-svg-coordinate-extraction"&gt;2. &lt;strong&gt;SVG Coordinate Extraction&lt;/strong&gt;&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;getLineFromElement&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;line&lt;/span&gt;) {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;x1&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; parseFloat(&lt;span style="color:#a6e22e"&gt;line&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getAttribute&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;x1&amp;#39;&lt;/span&gt;)),
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;y1&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; parseFloat(&lt;span style="color:#a6e22e"&gt;line&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getAttribute&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;y1&amp;#39;&lt;/span&gt;)),
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;x2&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; parseFloat(&lt;span style="color:#a6e22e"&gt;line&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getAttribute&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;x2&amp;#39;&lt;/span&gt;)),
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;y2&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; parseFloat(&lt;span style="color:#a6e22e"&gt;line&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getAttribute&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;y2&amp;#39;&lt;/span&gt;))
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; };
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="3-visual-line-splitting"&gt;3. &lt;strong&gt;Visual Line Splitting&lt;/strong&gt;&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;getLineSplitSegments&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;line&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;intersections&lt;/span&gt;) {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Creates visual gaps at intersection points
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#75715e"&gt;// More efficient than creating separate path elements
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;segments&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; [];
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;intersections&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;forEach&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;intersection&lt;/span&gt; =&amp;gt; {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Add gap around intersection point
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;gapSize&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.02&lt;/span&gt;; &lt;span style="color:#75715e"&gt;// 2% of line length
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#75715e"&gt;// Split line into segments with gaps
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; });
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;segments&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="4-efficient-intersection-algorithm"&gt;4. &lt;strong&gt;Efficient Intersection Algorithm&lt;/strong&gt;&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;lineIntersection&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;line1&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;line2&lt;/span&gt;) {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Parametric line intersection
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#75715e"&gt;// Returns null for parallel lines (early exit)
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#75715e"&gt;// Checks if intersection is within line segments
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#75715e"&gt;// Returns intersection point with parameter values
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id="performance-features"&gt;Performance Features&lt;/h2&gt;
-&lt;h3 id="optimization-strategies"&gt;&lt;strong&gt;Optimization Strategies:&lt;/strong&gt;&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;Bounding Box Testing&lt;/strong&gt;: Quick elimination of non-intersecting line pairs&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;SVG Native Coordinates&lt;/strong&gt;: Direct attribute access without transformations&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Parametric Intersection&lt;/strong&gt;: Mathematical precision with early exits&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Visual Effects&lt;/strong&gt;: Line splitting and gap rendering&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Real-time Updates&lt;/strong&gt;: Efficient redraw strategies&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id="interactive-features"&gt;&lt;strong&gt;Interactive Features:&lt;/strong&gt;&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Draggable Endpoints&lt;/strong&gt;: Move line endpoints to see live intersection updates&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Visual Splitting&lt;/strong&gt;: Lines break at intersection points with dashed gaps&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Real-time Counting&lt;/strong&gt;: Dynamic intersection count display&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Smooth Animation&lt;/strong&gt;: Moving lines with continuous intersection detection&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id="svg-specific-benefits"&gt;&lt;strong&gt;SVG-Specific Benefits:&lt;/strong&gt;&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Direct Coordinate Access&lt;/strong&gt;: &lt;code&gt;getAttribute()&lt;/code&gt; for line positions&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Built-in Bounding Boxes&lt;/strong&gt;: &lt;code&gt;getBBox()&lt;/code&gt; for quick spatial queries&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Native Rendering&lt;/strong&gt;: Hardware-accelerated line and circle drawing&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Event Integration&lt;/strong&gt;: Mouse events directly on SVG elements&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;This system demonstrates how SVG&amp;rsquo;s built-in features can optimize geometric calculations and provide smooth interactive experiences!&lt;/p&gt;</description></item><item><title>SVG Shape Example</title><link>https://thetanil.github.io/posts/svg_001/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_001/</guid><description>&lt;h1 id="svg-shape-display"&gt;SVG Shape Display&lt;/h1&gt;
+&lt;/script&gt;</description></item><item><title>SVG Shape Example</title><link>https://thetanil.github.io/posts/svg_001/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_001/</guid><description>&lt;h1 id="svg-shape-display"&gt;SVG Shape Display&lt;/h1&gt;
 &lt;p&gt;Here&amp;rsquo;s an example of displaying SVG shapes directly in a Hugo markdown post.&lt;/p&gt;
 &lt;h2 id="inline-svg-example"&gt;Inline SVG Example&lt;/h2&gt;
 &lt;p&gt;You can embed SVG directly in your markdown:&lt;/p&gt;
@@ -1226,9 +1086,7 @@ window.addEventListener('resize', () =&gt; {
  &lt;line x1="20" y1="120" x2="80" y2="180" stroke="purple" stroke-width="3"/&gt;
  &lt;!-- Text --&gt;
 &lt;p&gt;&lt;text x="10" y="190" font-family="Arial" font-size="14" fill="black"&gt;SVG Shapes&lt;/text&gt;
-&lt;/svg&gt;&lt;/p&gt;
-&lt;h2 id="styled-svg-with-css"&gt;Styled SVG with CSS&lt;/h2&gt;
-&lt;p&gt;You can also style SVG elements with CSS:&lt;/p&gt;</description></item><item><title>SVG with Normalized Coordinates</title><link>https://thetanil.github.io/posts/svg_002/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_002/</guid><description>&lt;p&gt;This post demonstrates how to generate SVG content with JavaScript using normalized coordinates (-1 to 1) similar to fragment shaders.&lt;/p&gt;
+&lt;/svg&gt;&lt;/p&gt;</description></item><item><title>SVG with Normalized Coordinates</title><link>https://thetanil.github.io/posts/svg_002/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_002/</guid><description>&lt;p&gt;This post demonstrates how to generate SVG content with JavaScript using normalized coordinates (-1 to 1) similar to fragment shaders.&lt;/p&gt;
 &lt;div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;"&gt;
 &lt;button onclick="startFragmentAnimation()" style="padding: 10px 15px; background: #8BC34A; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 150px;"&gt;🎬 Animate Fragment Shader&lt;/button&gt;
 &lt;button onclick="startCircleAnimation()" style="padding: 10px 15px; background: #03A9F4; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 150px;"&gt;🎬 Animate Circles&lt;/button&gt;
@@ -1495,45 +1353,7 @@ window.addEventListener('resize', () =&gt; {
  }
  // Animation will continue with the current pattern
 });
-&lt;/script&gt;
-&lt;h2 id="key-concepts"&gt;Key Concepts&lt;/h2&gt;
-&lt;h3 id="normalized-coordinates"&gt;Normalized Coordinates&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Convert screen position to normalized coordinates (-1 to 1)
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;nx&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;i&lt;/span&gt; &lt;span style="color:#f92672"&gt;/&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;resolution&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;ny&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;j&lt;/span&gt; &lt;span style="color:#f92672"&gt;/&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;resolution&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Convert normalized coordinates back to SVG coordinates
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;normToSvg&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;nx&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;ny&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;width&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;height&lt;/span&gt;) {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;nx&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;width&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.5&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; (&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;ny&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;height&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.5&lt;/span&gt;; &lt;span style="color:#75715e"&gt;// Flip Y for SVG
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; { &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; };
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="fragment-shader-like-functions"&gt;Fragment Shader-like Functions&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fragmentShader&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;nx&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;ny&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;time&lt;/span&gt;) {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dist&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;length&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;nx&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;ny&lt;/span&gt;);
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;angle&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; Math.&lt;span style="color:#a6e22e"&gt;atan2&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;ny&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;nx&lt;/span&gt;);
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;rings&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sin&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;dist&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;10&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;time&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.5&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.5&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;spiral&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sin&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;angle&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;8&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;dist&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;20&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;time&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;3&lt;/span&gt;) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.5&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.5&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; { &lt;span style="color:#a6e22e"&gt;r&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;rings&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;g&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;spiral&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;b&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0.8&lt;/span&gt; };
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="performance-considerations"&gt;Performance Considerations&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Resolution&lt;/strong&gt;: Lower resolution = better performance&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Animation&lt;/strong&gt;: Use &lt;code&gt;requestAnimationFrame&lt;/code&gt; for smooth animation&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Batch Operations&lt;/strong&gt;: Create all elements before adding to DOM&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Consider Canvas&lt;/strong&gt;: For very high-resolution patterns, HTML5 Canvas might be more efficient&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id="advanced-techniques"&gt;Advanced Techniques&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;Use viewBox&lt;/strong&gt;: Define custom coordinate systems&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Float Precision&lt;/strong&gt;: JavaScript numbers are 64-bit floats, perfect for shader-like calculations&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Color Spaces&lt;/strong&gt;: Convert between HSL, RGB, and normalized color values&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Time-based Animation&lt;/strong&gt;: Use timestamps for consistent animation speed&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Interactive&lt;/strong&gt;: Add mouse/touch events for interactive experiences&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;This approach gives you the flexibility of fragment shaders with the scalability and styling capabilities of SVG!&lt;/p&gt;</description></item><item><title>Wireframe Box Animation</title><link>https://thetanil.github.io/posts/svg_003/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_003/</guid><description>&lt;p&gt;This post demonstrates a 3D wireframe cube animation using JavaScript-generated SVG with normalized coordinates and matrix transformations.&lt;/p&gt;
+&lt;/script&gt;</description></item><item><title>Wireframe Box Animation</title><link>https://thetanil.github.io/posts/svg_003/</link><pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/svg_003/</guid><description>&lt;p&gt;This post demonstrates a 3D wireframe cube animation using JavaScript-generated SVG with normalized coordinates and matrix transformations.&lt;/p&gt;
 &lt;h3 id="animated-wireframes"&gt;Animated Wireframes:&lt;/h3&gt;
 &lt;div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;"&gt;
 &lt;button onclick="startAnimation('single')" style="padding: 10px 15px; background: #8BC34A; color: white; border: none; border-radius: 4px; cursor: pointer; flex: 1; min-width: 150px;"&gt;🎬 Rotating Box&lt;/button&gt;
@@ -1950,30 +1770,7 @@ window.addEventListener('resize', () =&gt; {
 &lt;li&gt;&lt;strong&gt;Single Box&lt;/strong&gt;: Classic rotating wireframe cube&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Multiple Boxes&lt;/strong&gt;: Several cubes with different scales and positions&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Tunnel Effect&lt;/strong&gt;: Infinite tunnel of rotating wireframes&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id="coordinate-system"&gt;Coordinate System&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-javascript" data-lang="javascript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 3D cube vertices in normalized coordinates (-1 to 1)
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;cubeVertices&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; [
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; [&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], [ &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], [ &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], [&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], &lt;span style="color:#75715e"&gt;// Front
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; [&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], [ &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], [ &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], [&lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;] &lt;span style="color:#75715e"&gt;// Back
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;];
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Transform to screen space
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;function&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;transformPoint&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;z&lt;/span&gt;) {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;w&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;12&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;13&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;14&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;z&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;15&lt;/span&gt;];
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;z&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;3&lt;/span&gt;]) &lt;span style="color:#f92672"&gt;/&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;w&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt;&lt;span style="color:#f92672"&gt;:&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;4&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;x&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;5&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;y&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;6&lt;/span&gt;] &lt;span style="color:#f92672"&gt;*&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;z&lt;/span&gt; &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;matrix&lt;/span&gt;[&lt;span style="color:#ae81ff"&gt;7&lt;/span&gt;]) &lt;span style="color:#f92672"&gt;/&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;w&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; };
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="performance-optimizations"&gt;Performance Optimizations&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Efficient matrix math&lt;/strong&gt;: Minimal allocations in animation loop&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;SVG reuse&lt;/strong&gt;: Complete regeneration for smooth animation&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Culling&lt;/strong&gt;: Skip rendering of vertices/edges behind camera&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Color cycling&lt;/strong&gt;: HSL color space for smooth transitions&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;This wireframe system demonstrates how to build a complete 3D rendering pipeline using just SVG and JavaScript, with normalized coordinates providing a clean mathematical foundation!&lt;/p&gt;</description></item><item><title>Distributed Monolith Pipeline Analysis: Improvements and Refinements</title><link>https://thetanil.github.io/posts/dist-mono-pipe-analysis/</link><pubDate>Tue, 07 Oct 2025 12:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/dist-mono-pipe-analysis/</guid><description>&lt;h2 id="executive-summary"&gt;Executive Summary&lt;/h2&gt;
+&lt;/ol&gt;</description></item><item><title>Distributed Monolith Pipeline Analysis: Improvements and Refinements</title><link>https://thetanil.github.io/posts/dist-mono-pipe-analysis/</link><pubDate>Tue, 07 Oct 2025 12:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/dist-mono-pipe-analysis/</guid><description>&lt;h2 id="executive-summary"&gt;Executive Summary&lt;/h2&gt;
 &lt;p&gt;This analysis examines the proposed distributed monolith pipeline architecture with 47 component repositories feeding into a central integration repository. After reviewing the current design and evaluating GitHub&amp;rsquo;s merge queue capabilities, several key improvements and refinements are identified to enhance velocity, reliability, and operational efficiency.&lt;/p&gt;
 &lt;h2 id="current-architecture-analysis"&gt;Current Architecture Analysis&lt;/h2&gt;
 &lt;h3 id="strengths"&gt;Strengths&lt;/h3&gt;
@@ -2026,97 +1823,7 @@ window.addEventListener('resize', () =&gt; {
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id="release-pipeline-stages"&gt;Release Pipeline Stages&lt;/h2&gt;
 &lt;p&gt;The pipeline consists of 5 distinct stages:&lt;/p&gt;</description></item><item><title>Accursed</title><link>https://thetanil.github.io/posts/accursed/</link><pubDate>Sun, 05 Oct 2025 11:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/accursed/</guid><description>&lt;h2 id="design"&gt;design&lt;/h2&gt;
 &lt;h3 id="midgaard-static-site-recreation"&gt;Midgaard Static Site Recreation&lt;/h3&gt;
-&lt;p&gt;Recreating the classic MUD city of Midgaard as a Hugo static site, where each room is a markdown file with YAML frontmatter containing spatial and descriptive data.&lt;/p&gt;
-&lt;h4 id="room-structure"&gt;Room Structure&lt;/h4&gt;
-&lt;p&gt;Each room will be a markdown file with the following YAML frontmatter:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-yaml" data-lang="yaml"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;---
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;title&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;Temple Square&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;room_id&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;temple_square&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;coordinates&lt;/span&gt;: [&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;] &lt;span style="color:#75715e"&gt;# x, y, z&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;short_description&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;the Temple Square&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;exits&lt;/span&gt;:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;north&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;temple_entrance&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;south&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;market_square&amp;#34;&lt;/span&gt; 
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;east&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;eastern_avenue&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;west&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;western_road&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;up&lt;/span&gt;: &lt;span style="color:#66d9ef"&gt;null&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;down&lt;/span&gt;: &lt;span style="color:#66d9ef"&gt;null&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;npcs&lt;/span&gt;:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#f92672"&gt;name&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;a temple guard&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;description&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;A stern-looking guard watches over the square&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;items&lt;/span&gt;:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#e6db74"&gt;&amp;#34;a marble fountain&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#e6db74"&gt;&amp;#34;stone benches&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;ambiance&lt;/span&gt;:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#e6db74"&gt;&amp;#34;The sound of flowing water echoes from the fountain&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; - &lt;span style="color:#e6db74"&gt;&amp;#34;Pilgrims move quietly through the square&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;lighting&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;bright&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;weather_affected&lt;/span&gt;: &lt;span style="color:#66d9ef"&gt;true&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;---
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;You stand in the heart of Midgaard&amp;#39;s Temple Square. A magnificent marble fountain &lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;dominates the center, its crystalline waters catching the light. Stone benches &lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;line the square&amp;#39;s perimeter, offering rest to weary travelers. To the north, &lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;the grand temple rises majestically, while bustling market sounds drift from the south.&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h4 id="directory-structure"&gt;Directory Structure&lt;/h4&gt;
-&lt;pre tabindex="0"&gt;&lt;code&gt;content/
- midgaard/
- _index.md # Main city overview
- temple/
- square.md # Temple Square (0,0,0)
- entrance.md # Temple Entrance (0,1,0)
- altar.md # Main Altar (0,2,0)
- market/
- square.md # Market Square (0,-1,0)
- fountain.md # Market Fountain (0,-2,0)
- stalls/
- weapon_shop.md # Weapon Shop (-1,-1,0)
- armor_shop.md # Armor Shop (1,-1,0)
- residential/
- main_street.md # Main Street
- inn.md # The Midgaard Inn
- tavern.md # Local Tavern
- outskirts/
- gates/
- north.md # North Gate
- south.md # South Gate
- east.md # East Gate 
- west.md # West Gate
-&lt;/code&gt;&lt;/pre&gt;&lt;h4 id="navigation-system"&gt;Navigation System&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;Custom Hugo shortcode &lt;code&gt;{{&amp;lt; compass &amp;gt;}}&lt;/code&gt; generates N/S/E/W navigation buttons&lt;/li&gt;
-&lt;li&gt;JavaScript enhances buttons with hover effects and keyboard navigation&lt;/li&gt;
-&lt;li&gt;URL structure: &lt;code&gt;/midgaard/temple/square/&lt;/code&gt; maps to coordinates and connections&lt;/li&gt;
-&lt;li&gt;Breadcrumb system shows current location in city hierarchy&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id="content-generation-strategy"&gt;Content Generation Strategy&lt;/h4&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;Core Locations&lt;/strong&gt;: Start with ~20 essential Midgaard locations (temple, market, inn, gates)&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Procedural Descriptions&lt;/strong&gt;: Use templates with randomized ambient details&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Interconnected Layout&lt;/strong&gt;: Maintain classic MUD spatial relationships&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Progressive Enhancement&lt;/strong&gt;: Add NPCs, items, and lore incrementally&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Community Content&lt;/strong&gt;: Allow contributions via Git PRs for new rooms/descriptions&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h4 id="technical-implementation"&gt;Technical Implementation&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Layout Template&lt;/strong&gt;: Custom &lt;code&gt;room.html&lt;/code&gt; layout renders YAML data as interactive room&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Asset Pipeline&lt;/strong&gt;: CSS/JS for compass navigation and atmospheric effects&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Data Validation&lt;/strong&gt;: Hugo&amp;rsquo;s data validation ensures room connections are bidirectional&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Mobile First&lt;/strong&gt;: Touch-friendly navigation optimized for &amp;ldquo;midgaard on mobile&amp;rdquo;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Progressive Web App&lt;/strong&gt;: Offline capability for exploring the city anywhere&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id="atmospheric-features"&gt;Atmospheric Features&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Dynamic Descriptions&lt;/strong&gt;: Time-based content changes (day/night descriptions)&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Weather System&lt;/strong&gt;: Frontmatter-driven weather affects room descriptions&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Sound Design&lt;/strong&gt;: Ambient audio cues for different districts&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Character Persistence&lt;/strong&gt;: LocalStorage tracks &amp;ldquo;character&amp;rdquo; location between visits&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="thoughts---do-not-modify-always-save-this-text-at-the-bottom-of-the-article-unchanged"&gt;thoughts - do not modify, always save this text at the bottom of the article unchanged&lt;/h2&gt;
-&lt;p&gt;some type of market gambling
-some type of political influence from outside
-some type of iterative simulation which takes input from the live world (mastodon)
-some type of tithing to the democratically distributed financial backing&lt;/p&gt;</description></item><item><title>Domain Portfolio</title><link>https://thetanil.github.io/posts/domains/</link><pubDate>Sun, 05 Oct 2025 11:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/domains/</guid><description>&lt;h1 id="domain-portfolio"&gt;Domain Portfolio&lt;/h1&gt;
+&lt;p&gt;Recreating the classic MUD city of Midgaard as a Hugo static site, where each room is a markdown file with YAML frontmatter containing spatial and descriptive data.&lt;/p&gt;</description></item><item><title>Domain Portfolio</title><link>https://thetanil.github.io/posts/domains/</link><pubDate>Sun, 05 Oct 2025 11:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/domains/</guid><description>&lt;h1 id="domain-portfolio"&gt;Domain Portfolio&lt;/h1&gt;
 &lt;p&gt;Quick access to all enabled domains in the portfolio. Click any link to test the redirect behavior.&lt;/p&gt;
 &lt;h2 id="enabled-domains"&gt;Enabled Domains&lt;/h2&gt;
 &lt;p&gt;These domains are currently managed and configured with redirects to thetanil.com:&lt;/p&gt;
