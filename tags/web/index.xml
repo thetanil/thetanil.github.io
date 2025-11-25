@@ -2,7 +2,7 @@
 &lt;p&gt;Here&amp;rsquo;s an example of displaying SVG shapes directly in a Hugo markdown post.&lt;/p&gt;
 &lt;h2 id="inline-svg-example"&gt;Inline SVG Example&lt;/h2&gt;
 &lt;p&gt;You can embed SVG directly in your markdown:&lt;/p&gt;
-&lt;svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;svg width="100%" height="auto" xmlns="http://www.w3.org/2000/svg"&gt;
  &lt;!-- Circle --&gt;
  &lt;circle cx="50" cy="50" r="40" fill="blue" stroke="navy" stroke-width="2"/&gt;
  &lt;!-- Rectangle --&gt;

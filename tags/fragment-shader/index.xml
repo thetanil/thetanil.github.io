@@ -72,8 +72,8 @@ function createSVGPattern() {
  
  // Create SVG element
  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  
@@ -119,8 +119,8 @@ function createHighResPattern() {
  const height = window.innerHeight;
  
  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  
@@ -164,8 +164,8 @@ function createMandelbrotPattern() {
  const height = window.innerHeight;
  
  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  

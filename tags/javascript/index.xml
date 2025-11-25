@@ -37,8 +37,8 @@ function initializeSVG() {
  container.innerHTML = '';
  
  svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  svg.style.background = '#111';
@@ -658,8 +658,8 @@ function createStaticIntersectionDemo() {
  container.innerHTML = '';
  
  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  svg.style.background = '#111';
@@ -791,8 +791,8 @@ function createInteractiveDemo() {
  container.innerHTML = '';
  
  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  svg.style.background = '#111';
@@ -1002,8 +1002,8 @@ function createAnimatedIntersections() {
  container.innerHTML = '';
  
  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  svg.style.background = '#111';
@@ -1268,8 +1268,8 @@ function createSVGPattern() {
  
  // Create SVG element
  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  
@@ -1315,8 +1315,8 @@ function createHighResPattern() {
  const height = window.innerHeight;
  
  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  
@@ -1360,8 +1360,8 @@ function createMandelbrotPattern() {
  const height = window.innerHeight;
  
  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  
@@ -1614,8 +1614,8 @@ function createWireframeBox(time = 0) {
  
  // Create SVG element
  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  svg.style.background = '#000';
@@ -1694,8 +1694,8 @@ function createMultipleBoxes(time = 0) {
  container.innerHTML = '';
  
  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  svg.style.background = '#000';
@@ -1781,8 +1781,8 @@ function createTunnelEffect(time = 0) {
  container.innerHTML = '';
  
  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
- svg.setAttribute('width', width);
- svg.setAttribute('height', height);
+ svg.setAttribute('width', '100%');
+ svg.setAttribute('height', 'auto');
  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
  svg.style.display = 'block';
  svg.style.background = '#000';
