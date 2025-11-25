@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Theta Nil's Site</title><link>https://thetanil.github.io/posts/</link><description>Recent content in Posts on Theta Nil's Site</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Tue, 25 Nov 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://thetanil.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>Theta-lang: Core Design Decisions</title><link>https://thetanil.github.io/posts/theta-lang-design-decisions/</link><pubDate>Tue, 25 Nov 2025 00:00:00 +0000</pubDate><guid>https://thetanil.github.io/posts/theta-lang-design-decisions/</guid><description>&lt;h2 id="ratified-design-choices"&gt;Ratified Design Choices&lt;/h2&gt;
-&lt;p&gt;These fundamental design decisions have been confirmed and should guide all implementation work.&lt;/p&gt;
+&lt;p&gt;These fundamental design decisions have been confirmed and should guide all
+implementation work.&lt;/p&gt;
 &lt;hr&gt;
 &lt;h2 id="1-memory-model-arena-allocation"&gt;1. Memory Model: Arena Allocation&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;Decision:&lt;/strong&gt; Use arena-based memory allocation for FlatBuffer regions.&lt;/p&gt;
