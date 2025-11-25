@@ -1,0 +1,134 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width"><title>Theta-lang: Core Design Decisions | Theta Nil's Site</title><link rel=stylesheet href=/css/main.min.c7a5c1c6627bdd92510df0d2272d0f86694f49366048d0ee3065e20d315759b3.css integrity="sha256-x6XBxmJ73ZJRDfDSJy0PhmlPSTZgSNDuMGXiDTFXWbM=" crossorigin=anonymous><script src=/js/main.23cd0c7d837263b9eaeb96ee2d9ccfa2969daa3fa00fa1c1fe8701a9b87251a1.js integrity="sha256-I80MfYNyY7nq65buLZzPopadqj+gD6HB/ocBqbhyUaE=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js></script><script>function getMermaidTheme(){return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"default"}function initializeMermaid(){mermaid.initialize({startOnLoad:!1,theme:getMermaidTheme(),securityLevel:"loose",fontFamily:"inherit",themeVariables:{primaryColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#66b3ff":"#00e",primaryTextColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#e8e8e8":"#222",primaryBorderColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#444":"#222",lineColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#444":"#222",sectionBkgColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#2a2a2a":"#f9f9f9",altSectionBkgColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#1a1a1a":"#fff",gridColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#444":"#e0e0e0",tertiaryColor:window.matchMedia("(prefers-color-scheme: dark)").matches?"#3a3a3a":"#f0f0f0"}})}function processMermaidBlocks(){const e=document.querySelectorAll("code.language-mermaid");e.forEach((e,t)=>{const n=document.createElement("div");n.className="mermaid",n.id="mermaid-"+t,n.textContent=e.textContent;const s=e.parentElement;s.parentElement.replaceChild(n,s)}),e.length>0&&mermaid.init()}if(document.addEventListener("DOMContentLoaded",function(){initializeMermaid(),processMermaidBlocks()}),window.matchMedia){const e=window.matchMedia("(prefers-color-scheme: dark)");e.addEventListener("change",function(){initializeMermaid();const t=document.querySelectorAll(".mermaid");t.forEach((e,t)=>{e.id="mermaid-rerender-"+t,e.removeAttribute("data-processed")}),t.length>0&&mermaid.init()})}</script></head><body><header><h1>Theta Nil's Site</h1><nav><ul><li><a href=/>Home</a></li><li><a aria-current=true class=ancestor href=/posts/>Posts</a></li><li><a href=/tags/>Tags</a></li></ul></nav></header><main><h1>Theta-lang: Core Design Decisions</h1><time datetime=2025-11-25T00:00:00+00:00>November 25, 2025</time><h2 id=ratified-design-choices>Ratified Design Choices</h2><p>These fundamental design decisions have been confirmed and should guide all implementation work.</p><hr><h2 id=1-memory-model-arena-allocation>1. Memory Model: Arena Allocation</h2><p><strong>Decision:</strong> Use arena-based memory allocation for FlatBuffer regions.</p><h3 id=rationale>Rationale</h3><ul><li><strong>Perfect fit with FlatBuffers:</strong> Append-only FlatBuffer building aligns naturally with arena allocation</li><li><strong>Predictable lifecycle:</strong> Entire arena can be freed at once when a computation completes</li><li><strong>Zero fragmentation:</strong> Sequential allocation eliminates memory fragmentation</li><li><strong>Fast allocation:</strong> Bump-pointer allocation is O(1)</li><li><strong>Immutability enforcement:</strong> Once built, FlatBuffer regions are immutable - arenas reinforce this</li></ul><h3 id=implementation-implications>Implementation Implications</h3><ul><li>VM maintains multiple arenas for different buffer generations</li><li>Each major computation phase (loading module, executing function, materializing dataflow result) gets its own arena</li><li>Host can retain references to old arenas even after VM creates new ones</li><li>Cleanup is simple: drop entire arena when no references remain</li><li>No need for garbage collection or reference counting within an arena</li></ul><h3 id=memory-layout-strategy>Memory Layout Strategy</h3><pre tabindex=0><code>Arena 1: Program module (immutable, lives for VM lifetime)
+Arena 2: Execution state generation N (replaced on each instruction batch)
+Arena 3: Dataflow intermediate results (replaced on materialization)
+Arena 4: Final results (retained by host, freed when host releases)
+</code></pre><hr><h2 id=2-register-architecture-typed-registers>2. Register Architecture: Typed Registers</h2><p><strong>Decision:</strong> Registers are statically typed; type checking occurs at module load time.</p><h3 id=rationale-1>Rationale</h3><ul><li><strong>Performance:</strong> No runtime type checking overhead in hot loop</li><li><strong>Safety:</strong> Catch type errors before execution</li><li><strong>C-like semantics:</strong> Matches procedural C language model</li><li><strong>Optimization:</strong> Typed registers enable better code generation and JIT opportunities</li><li><strong>Columnar alignment:</strong> Typed registers map naturally to typed columns in dataflow</li></ul><h3 id=register-file-design>Register File Design</h3><ul><li><strong>Fixed-size register file:</strong> 256 registers per function (r0-r255)</li><li><strong>Type tags:</strong> Each register has a static type (i32, i64, f32, f64, bool, ptr, table_ref, node_ref)</li><li><strong>Type validation:</strong> Instruction decoder verifies operand types match instruction requirements</li><li><strong>Special registers:</strong><ul><li><code>r0</code>: Always contains integer zero (read-only)</li><li><code>r1</code>: Function return value</li><li><code>r2-r15</code>: Argument passing registers</li><li><code>r16-r255</code>: General purpose</li></ul></li></ul><h3 id=type-system>Type System</h3><pre tabindex=0><code>Scalar types: i8, i16, i32, i64, f32, f64, bool
+Reference types: ptr (raw pointer), string (UTF-8)
+Table types: table_ref (reference to FlatBuffer table)
+Dataflow types: node_ref (reference to dataflow node)
+</code></pre><hr><h2 id=3-procedural-language-typed-c-like>3. Procedural Language: Typed, C-like</h2><p><strong>Decision:</strong> Procedural layer uses a typed, C-like imperative language.</p><h3 id=rationale-2>Rationale</h3><ul><li><strong>Familiarity:</strong> C-like syntax reduces learning curve</li><li><strong>Explicit control:</strong> Imperative style gives developers clear execution model</li><li><strong>Type safety:</strong> Static typing catches errors early</li><li><strong>Performance:</strong> Predictable code generation without dynamic dispatch</li><li><strong>Interop:</strong> Natural mapping to C host integration</li></ul><h3 id=language-characteristics>Language Characteristics</h3><ul><li><strong>Static typing:</strong> All variables and function signatures are typed</li><li><strong>Imperative control flow:</strong> if/else, while, for, break, continue, return</li><li><strong>Functions:</strong> First-class functions with typed signatures</li><li><strong>No implicit conversions:</strong> Explicit casts required (safety over convenience)</li><li><strong>No garbage collection:</strong> Manual memory is host-managed via arenas</li><li><strong>No classes/OOP:</strong> Procedural only, structs for data aggregation</li></ul><h3 id=syntax-example-illustrative>Syntax Example (Illustrative)</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span>fn <span style=color:#a6e22e>calculate_revenue</span>(orders: table_ref) <span style=color:#f92672>-&gt;</span> f64 {
+</span></span><span style=display:flex><span>    i64 count <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+</span></span><span style=display:flex><span>    f64 total <span style=color:#f92672>=</span> <span style=color:#ae81ff>0.0</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Create dataflow pipeline
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    node_ref filtered <span style=color:#f92672>=</span> <span style=color:#a6e22e>filter</span>(orders, <span style=color:#e6db74>&#34;status == &#39;completed&#39;&#34;</span>);
+</span></span><span style=display:flex><span>    node_ref projected <span style=color:#f92672>=</span> <span style=color:#a6e22e>project</span>(filtered, [<span style=color:#e6db74>&#34;amount&#34;</span>]);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Execute and materialize
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    table_ref results <span style=color:#f92672>=</span> <span style=color:#a6e22e>materialize</span>(projected);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// Procedural aggregation (could also use dataflow aggregate)
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>for</span> (i64 i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>; i <span style=color:#f92672>&lt;</span> <span style=color:#a6e22e>table_row_count</span>(results); i<span style=color:#f92672>++</span>) {
+</span></span><span style=display:flex><span>        f64 amount <span style=color:#f92672>=</span> <span style=color:#a6e22e>table_get_f64</span>(results, i, <span style=color:#ae81ff>0</span>);
+</span></span><span style=display:flex><span>        total <span style=color:#f92672>=</span> total <span style=color:#f92672>+</span> amount;
+</span></span><span style=display:flex><span>        count <span style=color:#f92672>=</span> count <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> total;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><hr><h2 id=4-table-storage-columnar-layout>4. Table Storage: Columnar Layout</h2><p><strong>Decision:</strong> Tables use columnar storage with typed columns.</p><h3 id=rationale-3>Rationale</h3><ul><li><strong>Analytical performance:</strong> Columnar storage is optimal for OLAP-style queries</li><li><strong>Compression:</strong> Column-wise compression is more effective (similar values)</li><li><strong>Cache efficiency:</strong> Scanning a single column has better cache locality</li><li><strong>SIMD-friendly:</strong> Contiguous typed arrays enable vectorization</li><li><strong>Projection efficiency:</strong> Selecting subset of columns avoids reading unused data</li></ul><h3 id=column-layout-in-flatbuffers>Column Layout in FlatBuffers</h3><pre tabindex=0><code>Table {
+    schema: Schema;           // Column names and types
+    row_count: u64;
+    columns: [Column];        // Array of column buffers
+}
+
+Column {
+    name: string;
+    type: ColumnType;         // i32, i64, f32, f64, bool, string
+    nullable: bool;
+    null_bitmap: [u8];        // Bit-packed null flags
+    data: [u8];               // Typed data buffer
+}
+
+ColumnType enum {
+    Int8, Int16, Int32, Int64,
+    Float32, Float64,
+    Boolean,
+    String,                   // Variable-length, stored as offsets + data
+}
+</code></pre><h3 id=string-column-representation>String Column Representation</h3><p>Strings require special handling in columnar format:</p><pre tabindex=0><code>StringColumn {
+    offsets: [u32];           // Length = row_count + 1
+    data: [u8];               // Concatenated UTF-8 bytes
+}
+// String at row i: data[offsets[i]..offsets[i+1]]
+</code></pre><h3 id=null-handling>Null Handling</h3><ul><li>Null bitmap: 1 bit per row (0 = null, 1 = valid)</li><li>Packed into byte array: <code>null_bitmap[(row / 8)]</code> & <code>(1 &lt;&lt; (row % 8))</code></li><li>Non-nullable columns omit null_bitmap</li></ul><hr><h2 id=5-dataflow-execution-pull-based-lazy-evaluation>5. Dataflow Execution: Pull-Based Lazy Evaluation</h2><p><strong>Decision:</strong> Dataflow nodes execute lazily using pull-based evaluation on a DAG.</p><h3 id=rationale-4>Rationale</h3><ul><li><strong>Memory efficiency:</strong> Only materialize results when needed</li><li><strong>Composition:</strong> Build complex pipelines without intermediate materialization</li><li><strong>Optimization opportunities:</strong> Entire DAG visible before execution, enables fusion</li><li><strong>Natural fit with DAG:</strong> Pull model traverses DAG from sinks to sources</li><li><strong>Host control:</strong> Host decides when to pull results (explicit <code>materialize()</code>)</li></ul><h3 id=execution-model>Execution Model</h3><h4 id=build-phase-lazy>Build Phase (Lazy)</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>// These operations only construct the DAG, no execution yet
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>node_ref scan <span style=color:#f92672>=</span> <span style=color:#a6e22e>create_scan_node</span>(<span style=color:#e6db74>&#34;sales_data&#34;</span>);
+</span></span><span style=display:flex><span>node_ref filter <span style=color:#f92672>=</span> <span style=color:#a6e22e>create_filter_node</span>(scan, <span style=color:#e6db74>&#34;revenue &gt; 1000&#34;</span>);
+</span></span><span style=display:flex><span>node_ref project <span style=color:#f92672>=</span> <span style=color:#a6e22e>create_project_node</span>(filter, [<span style=color:#e6db74>&#34;customer&#34;</span>, <span style=color:#e6db74>&#34;revenue&#34;</span>]);
+</span></span><span style=display:flex><span><span style=color:#75715e>// DAG exists, but no data has been processed
+</span></span></span></code></pre></div><h4 id=execution-phase-pull>Execution Phase (Pull)</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>// Host explicitly requests materialization
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>table_ref result <span style=color:#f92672>=</span> <span style=color:#a6e22e>materialize</span>(project);
+</span></span><span style=display:flex><span><span style=color:#75715e>// Now the executor walks the DAG backwards:
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// 1. project pulls from filter
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// 2. filter pulls from scan
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// 3. scan reads source table
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// 4. filter evaluates predicate on each row
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// 5. project selects columns
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// 6. Result materialized to new FlatBuffer
+</span></span></span></code></pre></div><h3 id=dag-interpreter-design>DAG Interpreter Design</h3><h4 id=node-interface>Node Interface</h4><p>Every dataflow node implements:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#66d9ef>typedef</span> <span style=color:#66d9ef>struct</span> DataflowNode {
+</span></span><span style=display:flex><span>    NodeType type;
+</span></span><span style=display:flex><span>    NodeID id;
+</span></span><span style=display:flex><span>    InputRefs inputs[];       <span style=color:#75715e>// Parent nodes in DAG
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    Schema output_schema;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> operator_state;     <span style=color:#75715e>// Operator-specific params
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>} DataflowNode;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Pull interface (iterator pattern)
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>typedef</span> <span style=color:#66d9ef>struct</span> NodeIterator {
+</span></span><span style=display:flex><span>    DataflowNode<span style=color:#f92672>*</span> node;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span><span style=color:#f92672>*</span> state;              <span style=color:#75715e>// Iteration state
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>bool</span> (<span style=color:#f92672>*</span>next)(NodeIterator<span style=color:#f92672>*</span> self, Row<span style=color:#f92672>*</span> out);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> (<span style=color:#f92672>*</span>reset)(NodeIterator<span style=color:#f92672>*</span> self);
+</span></span><span style=display:flex><span>} NodeIterator;
+</span></span></code></pre></div><h4 id=pull-execution>Pull Execution</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#75715e>// Pseudocode for pull-based execution
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>Iterator <span style=color:#a6e22e>materialize</span>(DataflowNode<span style=color:#f92672>*</span> sink) {
+</span></span><span style=display:flex><span>    Iterator it <span style=color:#f92672>=</span> <span style=color:#a6e22e>create_iterator</span>(sink);
+</span></span><span style=display:flex><span>    FlatBufferBuilder builder <span style=color:#f92672>=</span> <span style=color:#a6e22e>create_builder</span>(arena);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    Row row;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> (it.<span style=color:#a6e22e>next</span>(<span style=color:#f92672>&amp;</span>row)) {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>append_row_to_builder</span>(builder, row);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>finalize_builder</span>(builder);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// Each operator implements next() by pulling from inputs
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>bool</span> <span style=color:#a6e22e>filter_next</span>(FilterIterator<span style=color:#f92672>*</span> self, Row<span style=color:#f92672>*</span> out) {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> (self<span style=color:#f92672>-&gt;</span>input.<span style=color:#a6e22e>next</span>(out)) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>evaluate_predicate</span>(self<span style=color:#f92672>-&gt;</span>predicate, out)) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> true;  <span style=color:#75715e>// Found matching row
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> false;  <span style=color:#75715e>// No more rows
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span></code></pre></div><h3 id=dag-representation-in-flatbuffers>DAG Representation in FlatBuffers</h3><pre tabindex=0><code>DataflowGraph {
+    nodes: [DataflowNode];
+    topological_order: [NodeID];  // Pre-computed for validation
+}
+
+DataflowNode {
+    id: NodeID;
+    operator: Operator;
+    inputs: [NodeID];             // References to parent nodes
+    parameters: OperatorParams;   // Operator-specific config
+}
+
+Operator union {
+    ScanOp,
+    FilterOp,
+    ProjectOp,
+    MapOp,
+    JoinOp,
+    AggregateOp,
+    SortOp,
+}
+
+FilterOp {
+    predicate: Expression;        // Expression tree
+}
+
+ProjectOp {
+    columns: [u32];               // Column indices to keep
+}
+</code></pre><h3 id=optimization-opportunities>Optimization Opportunities</h3><p>Lazy evaluation enables optimizations before execution:</p><ul><li><strong>Predicate pushdown:</strong> Move filters closer to scans</li><li><strong>Projection pushdown:</strong> Only read needed columns from source</li><li><strong>Operator fusion:</strong> Combine filter→project into single pass</li><li><strong>Common subexpression elimination:</strong> Reuse shared subtrees</li></ul><hr><h2 id=design-synergies>Design Synergies</h2><p>These five decisions reinforce each other:</p><h3 id=arena--flatbuffers>Arena + FlatBuffers</h3><ul><li>Arenas hold immutable FlatBuffer regions</li><li>Building a FlatBuffer = appending to arena</li><li>Completed computation = drop arena</li></ul><h3 id=typed-registers--columnar-storage>Typed Registers + Columnar Storage</h3><ul><li>Register type <code>table_ref</code> holds reference to columnar table</li><li>Extracting column = typed array access (no type checking)</li><li>Pushing value to column = typed append</li></ul><h3 id=c-like-language--static-types>C-like Language + Static Types</h3><ul><li>Function signatures map to register types</li><li>Type checker validates before execution</li><li>No runtime surprises</li></ul><h3 id=lazy-evaluation--dag>Lazy Evaluation + DAG</h3><ul><li>DAG structure enables analysis before execution</li><li>Pull model = explicit materialization points</li><li>Host controls when computation happens</li></ul><h3 id=columnar--pull-execution>Columnar + Pull Execution</h3><ul><li>Pull one row at a time across columns</li><li>SIMD processes column chunks when beneficial</li><li>Cache-friendly sequential access patterns</li></ul><hr><h2 id=implementation-priorities>Implementation Priorities</h2><p>Given these decisions, the implementation should proceed:</p><ol><li><p><strong>Phase 1A: Type system and arena allocator</strong></p><ul><li>Define type enum and type descriptors</li><li>Implement arena allocator (bump pointer)</li><li>Create FlatBuffer schemas for types</li></ul></li><li><p><strong>Phase 1B: Columnar table schema</strong></p><ul><li>Define Column and Table FlatBuffer schemas</li><li>Implement column builders (for each type)</li><li>Add null bitmap handling</li></ul></li><li><p><strong>Phase 2A: Typed register file</strong></p><ul><li>Define RegisterFile FlatBuffer schema</li><li>Implement typed register access functions</li><li>Create register type validator</li></ul></li><li><p><strong>Phase 2B: Basic instruction set</strong></p><ul><li>Define typed instructions (ADD_I32, LOAD_F64, etc.)</li><li>Implement instruction decoder</li><li>Create simple interpreter loop</li></ul></li><li><p><strong>Phase 3A: Dataflow DAG representation</strong></p><ul><li>Define DataflowNode schema</li><li>Create DAG builder API</li><li>Implement topological sort validation</li></ul></li><li><p><strong>Phase 3B: Pull-based iterator interface</strong></p><ul><li>Define iterator protocol</li><li>Implement basic operators (Scan, Filter, Project)</li><li>Create materialization function</li></ul></li><li><p><strong>Phase 4: Language frontend</strong> (optional, can use direct bytecode generation initially)</p><ul><li>Design C-like syntax</li><li>Implement parser</li><li>Create type checker</li><li>Generate typed bytecode</li></ul></li></ol><hr><h2 id=open-questions-lower-priority>Open Questions (Lower Priority)</h2><p>With core decisions made, these can be deferred:</p><ul><li><strong>SIMD strategy:</strong> Which intrinsics? Portable fallback?</li><li><strong>String interning:</strong> Should duplicate strings be deduplicated?</li><li><strong>Operator fusion:</strong> Compile-time or runtime?</li><li><strong>Expression JIT:</strong> Should hot expressions be compiled?</li><li><strong>Parallelization:</strong> Can operators run on multiple threads?</li></ul><p>These can be addressed during implementation or optimization phases.</p><div><div>Tags:</div><ul><li><a href=/tags/theta-lang/>Theta-Lang</a></li><li><a href=/tags/vm/>Vm</a></li><li><a href=/tags/design/>Design</a></li><li><a href=/tags/flatbuffers/>Flatbuffers</a></li><li><a href=/tags/dataflow/>Dataflow</a></li></ul></div></main><footer><p>Copyright 2025. All rights reserved.</p></footer></body></html>
